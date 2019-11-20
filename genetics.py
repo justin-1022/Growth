@@ -1,4 +1,5 @@
 import header
+import creature
 
 
 class Genetics:
@@ -76,7 +77,42 @@ class Genetics:
             if len(population) <= minimum:
                 break
 
-            
+
     @staticmethod
-    def crossover(population):
-        return (remnants, offspring)
+    def crossover(genome1, genome2, points=1):
+
+        #generating points of crossover
+        crossSpots =([])
+        while len(crossSpots) < points:
+            newSpot = randRange(1, len(genome1)-2)
+            crossSpots.add(newSpot)
+
+        flipFlop = False#false for genome 1
+        childGenome = np.array()
+        for i in range(len(crossSpots)):
+            #adding segments from genomes split at crossSpots
+            spot = crossSpots[i]
+
+            if i == 0:
+                childGenome.append(genome1[0:spot])
+                flipFlop = not flipFlop
+                continue
+
+            lastSpot = crossSpots[i-1]
+            if flipFlop:
+                childGenome.append(genome2[lastSpot:spot])
+                if i == len(crossSpots)-1:
+                    #adding last piece
+                    childGenome.append(genome1[spot:])
+
+                flipFlop = not flipFlop
+
+            else:
+                childGenome.append(genome1[lastSpot:spot])
+                if i == len(crossSpots)-1:
+                    #adding last piece
+                    childGenome.append(genome2[spot:])
+
+                flipFlop = not flipFlop
+
+        return childGenome
