@@ -31,6 +31,8 @@ class Creature:
         self.energy;#depleted by 1/2mv^2
 
         #info for drawing
+        self.size = TILESIZE/2
+        self.color = getColor(self.genome)
 
 
     def mate(self, other):
@@ -42,6 +44,24 @@ class Creature:
 
     def getPublicInfo(self, other):
         pass
+
+    def draw(self, canvas, color=None):
+        if color is None: color = self.color
+
+        canvas.create_oval(self.x - self.size/2, self.y - self.size/2,
+                self.x + self.size/2, self.y + self.size/2,
+                fill=color, width=0)
+
+    @staticmethod
+    def getColor(genome):
+        colorString = ""
+        rgb = [genome[GENE["red"]], genome[GENE["green"]], genome[GENE["blue"]]]
+        for i in range(len(rgb)):
+            color = min(abs(int(rgb[i])), 255) if abs(color) > 1 else int(255*color)
+            color = hex(color)
+            colorString += hex(color)
+
+        return colorString
 
 """
 Genome indexing:

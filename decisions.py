@@ -107,7 +107,6 @@ def selfAttention(x, wQ, wK, wV):
         else:
             np.concatenate(output, wSum, axis=1)
 
-
     return output
 
 #using sigmoid instead of softmax because softmax fits things better
@@ -122,6 +121,7 @@ def softmax(x, axis=1):
     return np.exp(x) / np.sum(np.exp(x), axis=axis)
 
 
+def makeDecision()
 """
 Finished selfAttention function, all decision logic now complete
 """
