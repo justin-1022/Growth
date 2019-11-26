@@ -13,6 +13,7 @@ from cmu_112_graphics import *
 from tkinter import *
 from header import *
 from environment import *
+from creature import *
 
 class Growth(App):
     def appStarted(self):
@@ -26,6 +27,14 @@ class Growth(App):
                 self.tiles.append(Grassland(x, y))
 
         self.secondHand = 0
+        self.spawnNodes = [spawnNode(self.width/2, self.height/2, 10)]
+        self.creatures = set([])
+
+        for node in self.spawnNodes:
+            node.spawnCreatures()
+            self.creatures = self.creatures.union(node.creatureSet)
+
+
 
     @staticmethod
     def tileFind(tiles, x, y):
@@ -40,11 +49,16 @@ class Growth(App):
         self.secondHand += 1
         if self.secondHand > 100: self.secondHand = 1
 
-        print(self.secondHand)
         if self.secondHand == 1:
             for tile in self.tiles:
                 if tile.isViable:
                     tile.spawnFood()
+
+        if self.secondHand % 10 == 0:
+            for cret in self.creatures:
+                cret.look(self.foods, 0)
+                cret.look(self.creatures, 1)
+
 
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill="grey")
@@ -53,6 +67,9 @@ class Growth(App):
 
         for food in self.foods:
             food.draw(canvas)
+
+        for creature in self.creatures:
+            creature.draw(canvas)
 
 
 

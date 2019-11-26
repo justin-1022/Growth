@@ -26,6 +26,7 @@ class Tile:
         self.soundMult = 1
         self.visMult = 1
         self.fatigueMult = 1
+        
 
     def draw(self, canvas, color=None):
         if color is None: color = self.color
@@ -35,13 +36,21 @@ class Tile:
                 fill=color)
 
     def spawnFood(self):
-        x = self.x + random.random()*self.size*self.foodRadius
-        x = max(min(WIDTH - 5, x), 0) #boundary check
-        y = self.y + random.random()*self.size*self.foodRadius
-        y = max(min(HEIGHT - 5, y), 0)
-
+        #spawns food around viable tiles
         if random.random() < self.foodChance:
-            fate = random.random()
+            #figuring out x and y of food randomly
+            #spawns in specified radius
+            xMult = 1 if random.random() < 0.5 else -1
+            x = self.x + random.random()*self.size*self.foodRadius*xMult
+            x = max(min(WIDTH - 5, x), 0) #boundary check
+
+            yMult = 1 if random.random() < 0.5 else -1
+            y = self.y + random.random()*self.size*self.foodRadius*xMult
+            y = max(min(HEIGHT - 5, y), 0)
+
+            fate = random.random()#what type of food?
+
+            #makes the if statements neater
             stackHiMid = self.foodBook["hi"] + self.foodBook["mid"]
             stackAll = stackHiMid  + self.foodBook["lo"]
 
@@ -68,7 +77,7 @@ class Grassland(Tile):
 
         self.foodChance = 1
         self.foodBook = {"hi":0, "mid":0.1, "lo":0.9}
-        self.foodRadius = 4
+        self.foodRadius = 2.5
 
 class Forest(Tile):
     pass
