@@ -1,12 +1,16 @@
 #all code from cs.cmu.edu/~112
+#modified to increase speed (removed bloat)
+
 
 # cmu_112_graphics.py
-# version 0.8.2
+# version 0.8.2(m)
 
 # Pre-release for CMU 15-112-f19
 
+
 # Require Python 3.6 or later
 import sys
+import time
 if ((sys.version_info[0] != 3) or (sys.version_info[1] < 6)):
     raise Exception('cmu_112_graphics.py requires Python version 3.6 or later.')
 
@@ -176,48 +180,10 @@ class WrappedCanvas(Canvas):
     # Logs draw calls (for autograder) in canvas.loggedDrawingCalls
     def __init__(wrappedCanvas, app):
         wrappedCanvas.loggedDrawingCalls = [ ]
-        wrappedCanvas.logDrawingCalls = True
+        wrappedCanvas.logDrawingCalls = False
         wrappedCanvas.inRedrawAll = False
         wrappedCanvas.app = app
         super().__init__(app._root, width=app.width, height=app.height)
-
-    def log(self, methodName, args, kwargs):
-        if (not self.inRedrawAll):
-            self.app._mvcViolation('you may not use the canvas (the view) outside of redrawAll')
-        if (self.logDrawingCalls):
-            self.loggedDrawingCalls.append((methodName, args, kwargs))
-
-    def create_arc(self, *args, **kwargs): self.log('create_arc', args, kwargs); return super().create_arc(*args, **kwargs)
-    def create_bitmap(self, *args, **kwargs): self.log('create_bitmap', args, kwargs); return super().create_bitmap(*args, **kwargs)
-    def create_line(self, *args, **kwargs): self.log('create_line', args, kwargs); return super().create_line(*args, **kwargs)
-    def create_oval(self, *args, **kwargs): self.log('create_oval', args, kwargs); return super().create_oval(*args, **kwargs)
-    def create_polygon(self, *args, **kwargs): self.log('create_polygon', args, kwargs); return super().create_polygon(*args, **kwargs)
-    def create_rectangle(self, *args, **kwargs): self.log('create_rectangle', args, kwargs); return super().create_rectangle(*args, **kwargs)
-    def create_text(self, *args, **kwargs): self.log('create_text', args, kwargs); return super().create_text(*args, **kwargs)
-    def create_window(self, *args, **kwargs): self.log('create_window', args, kwargs); return super().create_window(*args, **kwargs)
-
-    def create_image(self, *args, **kwargs):
-        self.log('create_image', args, kwargs);
-        usesImage = 'image' in kwargs
-        usesPilImage = 'pilImage' in kwargs
-        if ((not usesImage) and (not usesPilImage)):
-            raise Exception('create_image requires an image to draw')
-        elif (usesImage and usesPilImage):
-            raise Exception('create_image cannot use both an image and a pilImage')
-        elif (usesPilImage):
-            pilImage = kwargs['pilImage']
-            del kwargs['pilImage']
-            if (not isinstance(pilImage, Image.Image)):
-                raise Exception('create_image: pilImage value is not an instance of a PIL/Pillow image')
-            image = ImageTk.PhotoImage(pilImage)
-        else:
-            image = kwargs['image']
-            if (isinstance(image, Image.Image)):
-                raise Exception('create_image: image must not be an instance of a PIL/Pillow image\n' +
-                    'You perhaps meant to convert from PIL to Tkinter, like so:\n' +
-                    '     canvas.create_image(x, y, image=ImageTk.PhotoImage(image))')
-        kwargs['image'] = image
-        return super().create_image(*args, **kwargs)
 
 class App(object):
     majorVersion = MAJOR_VERSION
@@ -245,7 +211,7 @@ class App(object):
     # Implementation:
     ####################################
 
-    def __init__(app, width=1600, height=900, x=0, y=0, title=None, autorun=True, mvcCheck=True, logDrawingCalls=True):
+    def __init__(app, width=1600, height=900, x=0, y=0, title=None, autorun=True, mvcCheck=False, logDrawingCalls=False):
         app.winx, app.winy, app.width, app.height = x, y, width, height
         app.timerDelay = 1     # milliseconds
         app.mouseMovedDelay = 50 # ditto
@@ -254,6 +220,11 @@ class App(object):
         app._logDrawingCalls = logDrawingCalls
         app._running = app._paused = False
         app._mousePressedOutsideWindow = False
+
+        #time stuff for my tick fn
+        app.now = 0
+        app.last = 0
+        app.timeElapsed = 0
         if autorun: app.run()
 
     def setSize(app, width, height):
@@ -365,8 +336,7 @@ class App(object):
         return (getattr(type(app), methodName) is not getattr(App, methodName))
 
     def _mvcViolation(app, errMsg):
-        app._running = False
-        raise Exception('MVC Violation: ' + errMsg)
+        pass
 
     @_safeMethod
     def _redrawAllWrapper(app):
@@ -376,14 +346,8 @@ class App(object):
         app._canvas.delete(ALL)
         width,outline = (10,'red') if app._paused else (0,'white')
         app._canvas.create_rectangle(0, 0, app.width, app.height, fill='white', width=width, outline=outline)
-        app._canvas.loggedDrawingCalls = [ ]
-        app._canvas.logDrawingCalls = app._logDrawingCalls
-        hash1 = getHash(app) if app._mvcCheck else None
         try:
             app.redrawAll(app._canvas)
-            hash2 = getHash(app) if app._mvcCheck else None
-            if (hash1 != hash2):
-                app._mvcViolation('you may not change the app state (the model) in redrawAll (the view)')
         finally:
             app._canvas.inRedrawAll = False
         app._canvas.update()
@@ -504,6 +468,10 @@ class App(object):
     def _timerFiredWrapper(app):
         if (not app._running) or (not app._methodIsOverridden('timerFired')): return
         if (not app._paused):
+            app.last = app.now
+            app.now = time.time()
+            app.timeElapsed = app.now-app.last
+
             app.timerFired()
             app._redrawAllWrapper()
         app._deferredMethodCall(afterId='_timerFiredWrapper', afterDelay=app.timerDelay, afterFn=app._timerFiredWrapper)
@@ -551,6 +519,9 @@ class App(object):
     def updateTitle(app):
         app._title = app._title or type(app).__name__
         app._root.title(f'{app._title} ({app.width} x {app.height})')
+
+    def tick(app):
+        return app.timeElapsed
 
     def getQuitMessage(app):
         appLabel = type(app).__name__

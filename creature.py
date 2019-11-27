@@ -1,6 +1,7 @@
 from header import *
 from genetics import Genetics
 import numpy as np
+from environment import *
 
 class Creature:
     def __init__(self, x, y, genome=None):
@@ -19,11 +20,11 @@ class Creature:
 
         #calculated from genome
         self.hpMax = None
-        self.speed = self.genome[GENE["speed"]]
+        self.speed = self.genome[GENE["agi"]]
         self.energyReq = (3*self.genome[GENE["size"]])**3
         self.diet = None#low vals = eats meat,high =vegan, middle = omni
         self.lifespan = None
-        self.moveCost = 3*self.genome[GENE["size"]]/2 * self.speed**2 *0.01
+        self.moveCost = 3*self.genome[GENE["size"]]/2 * self.speed**2 * 0.01
 
         #status data
         self.age = 0
@@ -34,16 +35,23 @@ class Creature:
         self.energy = self.energyReq#depleted by 1/2mv^2
 
         #info for drawing
-        self.size = TILESIZE * self.genome[GENE["size"]]
+        self.size = 5 + (TILESIZE-5) * self.genome[GENE["size"]]
         self.color = Creature.getColor(self.genome)
 
-        #locational data
+        #locational data/movement
         self.x = x
         self.y = y
+        self.velX = 0
+        self.velY = 0
         self.angle = 0
 
         self.foodSeen = []
-        self.creaturesSeen = []
+        self.foodDist = []
+        self.cretSeen = []
+        self.cretDist = []
+
+        #asset management
+        self.markForDelete = False
 
     def __hash__(self):
         return hash(self.id)
@@ -84,19 +92,50 @@ class Creature:
         return colorString
 
     def decideDemo(self):
-        #[x, y, foodx, foody, foodx, foody, foodNut]
+        #[x, y, foodx, foody, foodNut, Cretx, crety]
+        pass
+
+    def move(self, fX, fY, angle):
+        self.velX = fX * self.speed
+        self.velY = fY * self.speed
+        self.angle = angle * math.pi
+
+    def eat(self, food):
+        if (self.x-food.x)**2 + (self.y-food.y)**2 <= self.size**2:
+            if not isinstance(food, Corpse):
+                self.energy += food.energy
+                food.markForDelete = True
+
+    def update(self, dt):
+        self.energy -= self.energyReq * dt
+        self.age += dt
+
+        self.x += self.velX * math.cos(self.angle) * dt
+        self.y += self.velY * math.sin(self.angle) * dt
+
+        if self.velX > 0:
+            self.velX *= 0.5 + 0.02*self.size
+
+        if self.velY > 0:
+            self.velY *= 0.5 + 0.02*self.size
+
+    def idle(self, time):
+        pass
+
+    def makeCorpse(self):
+        #makes a corpse food object upon death
         pass
 
     def look(self, stuff, code):
         if code == 0:
-            for item in stuff:
-                dApprox = (food.x - self.x)**2 + (food.x - self.x)**2))
+            for food in stuff:
+                dApprox = (food.x - self.x)**2 + (food.x - self.x)**2
                 if len(self.foodSeen) < 2:
                     self.foodSeen.append(food)
                     self.foodDist.append(dApprox)
 
                 else:
-                    if (dApprox < max(self.foodDist):
+                    if dApprox < max(self.foodDist):
                         index = self.foodDist.index(max(self.foodDist))
 
                         self.foodSeen[index] = food
@@ -105,17 +144,17 @@ class Creature:
         elif code == 1:
             for other in stuff:
                 if other == self: continue
-                dApprox = (other.x - self.x)**2 + (other.x - self.x)**2))
+                dApprox = (other.x - self.x)**2 + (other.x - self.x)**2
                 if len(self.cretSeen) < 2:
                     self.cretSeen.append(other)
-                    cret.cretDist.append(dApprox)
+                    self.cretDist.append(dApprox)
 
                 else:
-                    if (dApprox < max(self.cretDist):
+                    if dApprox < max(self.cretDist):
                         index = self.cretDist.index(max(self.cretDist))
 
-                        self.cretSeen[index] = cret2
-                        self.cret2Dist[index] = dApprox
+                        self.cretSeen[index] = other
+                        self.cretDist[index] = dApprox
 
 
 
