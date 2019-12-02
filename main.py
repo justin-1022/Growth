@@ -35,8 +35,6 @@ class Growth(App):
             node.spawnCreatures()
             self.creatures = self.creatures.union(node.creatureSet)
 
-
-
     @staticmethod
     def tileFind(tiles, x, y):
         xInc = WIDTH//TILESIZE
@@ -64,12 +62,14 @@ class Growth(App):
             for tile in self.tiles:
                 if tile.isViable:
                     tile.spawnFood()
-                    print("food spawned")
+#                    print("food spawned")
 
         if self.secondHand % 10 == 0:
             for cret in self.creatures:
                 cret.look(self.foods, 0)
                 cret.look(self.creatures, 1)
+
+                cret.decide()
 
                 cret.update(dt)
 
@@ -85,6 +85,15 @@ class Growth(App):
         for creature in self.creatures:
             creature.draw(canvas)
 
+    def assistedEvolution(self, time, duration):
+        if self.time > self.duration:
+            luckSelector(self.creatures)
+
+            for node in self.spawnNodes:
+                for creature in node.creatureSet:
+
+                    if creature not in self.creatures:
+                        node.creatureSet.remove(creature)
 
 
 Growth(width=WIDTH, height=HEIGHT)

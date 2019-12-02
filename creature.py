@@ -2,6 +2,7 @@ from header import *
 from genetics import Genetics
 import numpy as np
 from environment import *
+from decisions import *
 
 class Creature:
     def __init__(self, x, y, genome=None):
@@ -49,6 +50,31 @@ class Creature:
         self.foodDist = []
         self.cretSeen = []
         self.cretDist = []
+        self.infoVector = []
+
+        #decision stuff
+        self.w1 = self.genome[50:92]
+        self.w1 = np.reshape(self.w1, (3, 14))
+
+        self.w2 = self.genome[92:104]
+        self.w2 = np.reshape(self.w2, (4, 3))
+
+        self.w3 = self.genome[104:124]
+        self.w3 = np.reshape(self.w3, (5, 4))
+
+        self.b1 = self.genome[124:127]
+        self.b1 = np.vstack(self.b1)
+
+        self.b2 = self.genome[127:131]
+        self.b2 = np.vstack(self.b2)
+
+        self.b3 = self.genome[131:136]
+        self.b3 = np.vstack(self.b3)
+
+        #for idling
+        self.isIdle = False
+        self.idleTime = 0
+
 
         #asset management
         self.markForDelete = False
@@ -68,7 +94,7 @@ class Creature:
         #mating between two Creatures
         childGenome = crossover(self.genome, other.genome)
         childGenome = mutate(childGenome)[0]
-        child = Creature(childGenome)
+        child = Creature(self.x, self.y, childGenome)
         return child
 
     def getPublicInfo(self, other):
@@ -91,27 +117,81 @@ class Creature:
 
         return colorString
 
-    def decideDemo(self):
+    def decide(self):
         #[x, y, foodx, foody, foodNut, Cretx, crety]
-        pass
+        if not self.isIdle:
+            self.infoVector = [self.x, self.y]
+
+            if len(self.foodSeen) > 0:
+                self.infoVector.extend([self.foodSeen[0].x, self.foodSeen[0].y])
+                self.infoVector.append(self.foodSeen[0].energy)
+
+            else:
+                self.infoVector.extend([-1, -1, -1])
+
+            if len(self.foodSeen) > 1:
+                self.infoVector.extend([self.foodSeen[1].x, self.foodSeen[1].y])
+                self.infoVector.append(self.foodSeen[1].energy)
+
+            else:
+                self.infoVector.extend([-1, -1, -1])
+
+
+            if len(self.cretSeen) > 0:
+                self.infoVector.extend([self.cretSeen[0].x, self.cretSeen[0].y,
+                self.cretSeen[0].speed])
+
+            else:
+                self.infoVector.extend([-1, -1, -1])
+
+            if len(self.cretSeen) > 1:
+                self.infoVector.extend([self.cretSeen[1].x, self.cretSeen[1].y,
+                self.cretSeen[0].speed])
+
+            else:
+                self.infoVector.extend([-1, -1, -1])
+
+
+
+            self.infoVector = np.vstack(np.array(self.infoVector))
+
+            self.decisionVector = feedForward(self.infoVector, self.w1, self.w2,
+            self.w3, self.b1, self.b2, self.b3)
+
+            if self.decisionVector[4] > self.decisionVector[0]:
+                for food in self.foodSeen:
+                    self.eat(food)
+
+            else:
+                self.move(self.decisionVector[1], self.decisionVector[2],
+                                self.decisionVector[3])
+
+        #[move?, x, y, angle, eat?]
+
+
 
     def move(self, fX, fY, angle):
-        self.velX = fX * self.speed
-        self.velY = fY * self.speed
+#        print(self.id, "moving", self.x, self.y)
+        self.velX = fX * self.speed * 1000
+        self.velY = fY * self.speed * 1000
         self.angle = angle * math.pi
 
     def eat(self, food):
+#        print(self.id, "eating")
         if (self.x-food.x)**2 + (self.y-food.y)**2 <= self.size**2:
             if not isinstance(food, Corpse):
                 self.energy += food.energy
                 food.markForDelete = True
 
+                self.idle(food.energy)
+
     def update(self, dt):
+#        print(self.id, "updating")
         self.energy -= self.energyReq * dt
         self.age += dt
 
-        self.x += self.velX * math.cos(self.angle) * dt
-        self.y += self.velY * math.sin(self.angle) * dt
+        self.x += float(self.velX * math.cos(self.angle) * dt)
+        self.y += float(self.velY * math.sin(self.angle) * dt)
 
         if self.velX > 0:
             self.velX *= 0.5 + 0.02*self.size
@@ -119,14 +199,39 @@ class Creature:
         if self.velY > 0:
             self.velY *= 0.5 + 0.02*self.size
 
-    def idle(self, time):
-        pass
+        if self.x - self.size < 0:
+            self.x = self.size
+
+        elif self.x + self.size > WIDTH:
+            self.x = WIDTH - self.size
+
+        if self.y - self.size < 0:
+            self.y = self.size
+
+        elif self.y + self.size > HEIGHT:
+            self.y = HEIGHT - self.size
+
+        self.idle()
+
+    def idle(self, time=0):
+        if time > 0:
+#            print(self.id, "going idle")
+            self.isIdle = True
+            self.idleTime = time
+
+        elif self.idleTime > 0:
+            self.idleTime -= 1
+
+        elif self.idleTime == 0:
+#            print(self.id, "waking up")
+            self.isIdle = False
 
     def makeCorpse(self):
         #makes a corpse food object upon death
         pass
 
     def look(self, stuff, code):
+#        print(self.id, "looking")
         if code == 0:
             for food in stuff:
                 dApprox = (food.x - self.x)**2 + (food.x - self.x)**2
@@ -155,6 +260,9 @@ class Creature:
 
                         self.cretSeen[index] = other
                         self.cretDist[index] = dApprox
+
+
+#        print(self.id, len(self.cretSeen), len(self.foodSeen), "saw")
 
 
 
@@ -219,7 +327,16 @@ class spawnNode:
 
                 self.creatureSet.add(Creature(x, y))
 
-        print("Creatures spawned:", len(self.creatureSet))
+
+    def repopulate(self):
+        while len(self.creatureSet) < self.count:
+            parent1 = random.choice(self.creatureSet)
+            parent2 = random.choice(self.creatureSet)
+
+            child = parent1.mate(parent2)
+
+            self.creatureSet.append(child)
+#        print("Creatures spawned:", len(self.creatureSet))
 
 
     def draw(self, canvas, color=None):

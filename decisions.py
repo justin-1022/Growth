@@ -1,4 +1,4 @@
-import header
+from header import *
 #handling everything related to turning genes into decisions
 
 
@@ -12,13 +12,13 @@ def feedForward(x, w1, w2, w3, b1, b2, b3):
     #neurons for last w is inputs for next
     #hardcoding at 2 hidden layers - shouldnt (hopefully) need more
 
-    #x needs to be vertical matrix of same width as w1
+    #x needs to be vertical matrix of same height as w1 is wide
     if np.shape(x)[0] != np.shape(w1)[1]:
-        raise Exception("Invalid dimensions: (x, w1)")
+        raise Exception("Invalid dimensions: (x, w1)", np.shape(x), np.shape(w1))
 
     #b needs to be vertical, same as amount of neurons
     if np.shape(b1)[0] != np.shape(w1)[0]:
-        raise Exception("Invalid dimensions: (x, w1)")
+        raise Exception("Invalid dimensions: (b1, w1)")
 
     #first layer pre activation
     a1 = np.dot(w1, x) + b1
@@ -28,11 +28,11 @@ def feedForward(x, w1, w2, w3, b1, b2, b3):
 
     #pattern repeats for subsequent layers
     if np.shape(h1)[0] != np.shape(w2)[1]:
-        raise Exception("Invalid dimensions: (x, w1)")
+        raise Exception("Invalid dimensions: (h1, w2)")
 
     #b2 needs to be vertical, same as amount of neurons as w2
     if np.shape(b2)[0] != np.shape(w2)[0]:
-        raise Exception("Invalid dimensions: (x, w1)")
+        raise Exception("Invalid dimensions: (b2, w2)")
 
     a2 = np.dot(w2, h1) + b2
 
@@ -40,11 +40,11 @@ def feedForward(x, w1, w2, w3, b1, b2, b3):
 
     #h2 needs to be vertical, same height as w2 is wide
     if np.shape(h2)[0] != np.shape(w3)[1]:
-        raise Exception("Invalid dimensions: (x, w1)")
+        raise Exception("Invalid dimensions: (h2, w3)")
 
 
     if np.shape(b3)[0] != np.shape(w3)[0]:
-        raise Exception("Invalid dimensions: (x, w1)")
+        raise Exception("Invalid dimensions: (b3, w3)")
 
     a3 = np.dot(w3, h2) + b3
 
@@ -120,8 +120,6 @@ def softmax(x, axis=1):
     #sum outputs horizontal arrays - this may cause a bug
     return np.exp(x) / np.sum(np.exp(x), axis=axis)
 
-
-def makeDecision()
 """
 Finished selfAttention function, all decision logic now complete
 """

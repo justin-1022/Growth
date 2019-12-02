@@ -4,6 +4,7 @@ import random
 import paintcan
 
 random.seed(1)
+np.random.seed(1)
 
 WIDTH = 1200
 HEIGHT = 900
