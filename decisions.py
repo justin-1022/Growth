@@ -111,7 +111,7 @@ def selfAttention(x, wQ, wK, wV):
 
 #using sigmoid instead of softmax because softmax fits things better
 #when there is only one right answer, this will be more fuzzy
-def sig(x):
+def sig(x, d=False):
     #sigmoid activation function
     return 1/(1 + np.exp(-x))
 

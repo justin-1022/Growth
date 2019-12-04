@@ -14,6 +14,7 @@ from tkinter import *
 from header import *
 from environment import *
 from creature import *
+from genetics import *
 import time
 
 class Growth(App):
@@ -35,6 +36,10 @@ class Growth(App):
             node.spawnCreatures()
             self.creatures = self.creatures.union(node.creatureSet)
 
+        for tile in self.tiles:
+            if tile.isViable:
+                tile.spawnFood()
+
     @staticmethod
     def tileFind(tiles, x, y):
         xInc = WIDTH//TILESIZE
@@ -46,7 +51,7 @@ class Growth(App):
 
     def timerFired(self):
         self.secondHand += 1
-        print(self.secondHand)
+#        print(self.secondHand)
         dt = self.tick()
         """
         if self.secondHand == 1:
@@ -56,23 +61,35 @@ class Growth(App):
             self.end = time.time()
             input(abs(self.start-self.end)/10)"""
 
-        if self.secondHand > 1000: self.secondHand = 1
+        if self.secondHand > 5000: self.secondHand = 1
 
-        if self.secondHand % 100 == 0:
+        if self.secondHand == 5000:
             for tile in self.tiles:
                 if tile.isViable:
                     tile.spawnFood()
+
+            for cret in self.creatures:
+                cret.safe = False
 #                    print("food spawned")
 
         if self.secondHand % 10 == 0:
-            for cret in self.creatures:
+            for cret in tuple(self.creatures):
                 cret.look(self.foods, 0)
                 cret.look(self.creatures, 1)
 
                 cret.decide()
 
                 cret.update(dt)
+                if cret.markForDelete:
+                    self.creatures.remove(cret)
 
+        if self.secondHand == 1000:
+            self.assistedEvolution()
+
+    def keyPressed(self, event):
+        if event.key == "p":
+            for cret in self.creatures:
+                print(cret.genome)
 
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill="grey")
@@ -85,15 +102,54 @@ class Growth(App):
         for creature in self.creatures:
             creature.draw(canvas)
 
-    def assistedEvolution(self, time, duration):
-        if self.time > self.duration:
-            luckSelector(self.creatures)
+    def assistedEvolution(self):
+        if len(self.creatures) > 1:
+            self.creatures = Genetics.luckSelector(self.creatures)
 
             for node in self.spawnNodes:
-                for creature in node.creatureSet:
+                node.creatureSet = node.creatureSet.intersection(self.creatures)
+                node.repopulate()
 
-                    if creature not in self.creatures:
-                        node.creatureSet.remove(creature)
+                self.creatures = self.creatures.union(node.creatureSet)
+                print(len(self.creatures), len(node.creatureSet))
+
+        else:
+            for node in self.spawnNodes:
+                node.creatureSet = node.creatureSet.intersection(self.creatures)
+                node.spawnCreatures()
+
+                self.creatures = self.creatures.union(node.creatureSet)
+                print(len(self.creatures), len(node.creatureSet))
+
+
+#EDITOR FEATURES:
+"""
+select different envionment tiles and paint them with mouse
+place spawn nodes anywhere
+import creatures from text file
+design custom creature genomes in friendly format
+"""
+
+"""
+features to add to make this DONE:
+editor(see above)
+    -select different envionment tiles and paint them with mouse
+    -place spawn nodes anywhere
+    -import creatures from text file
+    -design custom creature genomes in friendly format
+analytics
+    -display graphs with average age, average fitness over time
+    -display top performer
+export/import creatures
+    -send genomes to text file
+    -receive genomes from text file
+    -can import one to node for clones, two for parents
+    -can import individual creature to node
+export/import maps
+    -save tile list to txt file
+    -read from txt file to list
+"""
+
 
 
 Growth(width=WIDTH, height=HEIGHT)

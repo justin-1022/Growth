@@ -36,7 +36,7 @@ class Creature:
         self.energy = self.energyReq#depleted by 1/2mv^2
 
         #info for drawing
-        self.size = 5 + (TILESIZE-5) * self.genome[GENE["size"]]
+        self.size = 10 + (TILESIZE*2-10) * self.genome[GENE["size"]]
         self.color = Creature.getColor(self.genome)
 
         #locational data/movement
@@ -78,6 +78,10 @@ class Creature:
 
         #asset management
         self.markForDelete = False
+        self.safe = False
+
+        #for evolving
+        self.fitness = 0
 
     def __hash__(self):
         return hash(self.id)
@@ -92,8 +96,8 @@ class Creature:
 
     def mate(self, other):
         #mating between two Creatures
-        childGenome = crossover(self.genome, other.genome)
-        childGenome = mutate(childGenome)[0]
+        childGenome = Genetics.crossover(self.genome, other.genome)
+        childGenome = Genetics.mutate(childGenome)[0]
         child = Creature(self.x, self.y, childGenome)
         return child
 
@@ -177,21 +181,25 @@ class Creature:
         self.angle = angle * math.pi
 
     def eat(self, food):
-#        print(self.id, "eating")
+
         if (self.x-food.x)**2 + (self.y-food.y)**2 <= self.size**2:
             if not isinstance(food, Corpse):
                 self.energy += food.energy
                 food.markForDelete = True
-
+                self.fitness += 1
+                self.safe = True
+                print(self.id, "eating")
                 self.idle(food.energy)
+
+
 
     def update(self, dt):
 #        print(self.id, "updating")
         self.energy -= self.energyReq * dt
         self.age += dt
 
-        self.x += float(self.velX * math.cos(self.angle) * dt)
-        self.y += float(self.velY * math.sin(self.angle) * dt)
+        self.x += float(self.velX * math.cos(self.angle*2*math.pi) * dt)
+        self.y += float(self.velY * math.sin(self.angle*2*math.pi) * dt)
 
         if self.velX > 0:
             self.velX *= 0.5 + 0.02*self.size
@@ -200,16 +208,20 @@ class Creature:
             self.velY *= 0.5 + 0.02*self.size
 
         if self.x - self.size < 0:
-            self.x = self.size
+            self.x = self.size/2
 
         elif self.x + self.size > WIDTH:
-            self.x = WIDTH - self.size
+            self.x = WIDTH - self.size/2
 
         if self.y - self.size < 0:
-            self.y = self.size
+            self.y = self.size/2
 
         elif self.y + self.size > HEIGHT:
-            self.y = HEIGHT - self.size
+            self.y = HEIGHT - self.size/2
+
+#        self.fitness = self.energy / self.energyReq
+
+        if self.energy < 0 and not self.safe: self.markForDelete = True
 
         self.idle()
 
@@ -329,13 +341,14 @@ class spawnNode:
 
 
     def repopulate(self):
+        creatures = tuple(self.creatureSet)
         while len(self.creatureSet) < self.count:
-            parent1 = random.choice(self.creatureSet)
-            parent2 = random.choice(self.creatureSet)
+            parent1 = random.choice(creatures)
+            parent2 = random.choice(creatures)
 
             child = parent1.mate(parent2)
 
-            self.creatureSet.append(child)
+            self.creatureSet.add(child)
 #        print("Creatures spawned:", len(self.creatureSet))
 
 

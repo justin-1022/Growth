@@ -26,7 +26,7 @@ class Tile:
         self.soundMult = 1
         self.visMult = 1
         self.fatigueMult = 1
-        
+
 
     def draw(self, canvas, color=None):
         if color is None: color = self.color
@@ -72,24 +72,72 @@ class Grassland(Tile):
 
         #tile food properties
         self.viability = random.random()
-        self.threshold = 0.01
+        self.threshold = 0.1
         self.isViable = self.viability < self.threshold
 
-        self.foodChance = 1
+        self.foodChance = 0.9
         self.foodBook = {"hi":0, "mid":0.1, "lo":0.9}
         self.foodRadius = 2.5
 
 class Forest(Tile):
-    pass
+    def __init__(self, x, y, size=TILESIZE):
+        super().__init__(x, y, size)
+        #for drawing
+        self.color = "darkgreen"
+
+        #tile food properties
+        self.viability = random.random()
+        self.threshold = 0.01
+        self.isViable = self.viability < self.threshold
+
+        self.foodChance = 1
+        self.foodBook = {"hi":0.2, "mid":0.4, "lo":0.4}
+        self.foodRadius = 1.5
 
 class Desert(Tile):
-    pass
+    def __init__(self, x, y, size=TILESIZE):
+        super().__init__(x, y, size)
+        #for drawing
+        self.color = "tan"
+
+        #tile food properties
+        self.viability = random.random()
+        self.threshold = 0.005
+        self.isViable = self.viability < self.threshold
+
+        self.foodChance = 0.7
+        self.foodBook = {"hi":0.1, "mid":0.0, "lo":0.9}
+        self.foodRadius = 3.5
 
 class Savanna(Tile):
-    pass
+    def __init__(self, x, y, size=TILESIZE):
+        super().__init__(x, y, size)
+        #for drawing
+        self.color = "lightbrown"
+
+        #tile food properties
+        self.viability = random.random()
+        self.threshold = 0.01
+        self.isViable = self.viability < self.threshold
+
+        self.foodChance = 0.6
+        self.foodBook = {"hi":0, "mid":0.1, "lo":0.9}
+        self.foodRadius = 2.5
 
 class Marsh(Tile):
-    pass
+    def __init__(self, x, y, size=TILESIZE):
+        super().__init__(x, y, size)
+        #for drawing
+        self.color = "brown"
+
+        #tile food properties
+        self.viability = random.random()
+        self.threshold = 0.008
+        self.isViable = self.viability < self.threshold
+
+        self.foodChance = 1
+        self.foodBook = {"hi":0.3, "mid":0.3, "lo":0.4}
+        self.foodRadius = 1.5
 
 
 class Food:

@@ -1,4 +1,4 @@
-import header
+from header import *
 import creature
 
 
@@ -56,13 +56,19 @@ class Genetics:
         return newPopulation
 
     @staticmethod
-    def luckSelector(population, limit=0.5):
+    def luckSelector(peeps, limit=0.5):
+        if isinstance(peeps, set):
+            population = list(peeps)
+
         minimum = len(population) * 0.5
         tempSum = 0
         for creature in population:
             tempSum += creature.fitness
 
         avgFitness = tempSum / len(population)
+        if avgFitness == 0:
+            avgFitness = 0.0001
+        print(avgFitness)#Need to send to file
 
         popCount = 0
         for i in range(len(population)):
@@ -71,48 +77,56 @@ class Genetics:
             luck = creature.fitness/(2*avgFitness)
             fate = random.random()
 
-            if luck < fate:
-                population.pop[i-popCount]
+            if luck > fate:
+                population.pop(i-popCount)
+                popCount += 1
 
             if len(population) <= minimum:
                 break
+
+        return set(population)
 
 
     @staticmethod
     def crossover(genome1, genome2, points=1):
 
         #generating points of crossover
-        crossSpots =([])
+        crossSpots = []
         while len(crossSpots) < points:
-            newSpot = randRange(1, len(genome1)-2)
-            crossSpots.add(newSpot)
+            newSpot = random.randint(1, len(genome1)-2)
+            crossSpots.append(newSpot)
+
+        crossSpots = sorted(crossSpots)
+#        print(crossSpots)
 
         flipFlop = False#false for genome 1
-        childGenome = np.array()
+        childGenome = []
         for i in range(len(crossSpots)):
             #adding segments from genomes split at crossSpots
             spot = crossSpots[i]
 
             if i == 0:
-                childGenome.append(genome1[0:spot])
+                childGenome.extend(genome1[:spot])
                 flipFlop = not flipFlop
+
+                if i == len(crossSpots)-1:
+                    #adding last piece
+                    childGenome.extend(genome2[spot:])
                 continue
 
             lastSpot = crossSpots[i-1]
             if flipFlop:
-                childGenome.append(genome2[lastSpot:spot])
-                if i == len(crossSpots)-1:
-                    #adding last piece
-                    childGenome.append(genome1[spot:])
+                childGenome.extend(genome2[lastSpot:spot])
 
                 flipFlop = not flipFlop
 
             else:
-                childGenome.append(genome1[lastSpot:spot])
-                if i == len(crossSpots)-1:
-                    #adding last piece
-                    childGenome.append(genome2[spot:])
+                childGenome.extend(genome1[lastSpot:spot])
+
+            if i == len(crossSpots)-1:
+                #adding last piece
+                childGenome.extend(genome2[spot:])
 
                 flipFlop = not flipFlop
 
-        return childGenome
+        return np.array(childGenome)
