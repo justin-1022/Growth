@@ -191,7 +191,7 @@ class Creature:
                 food.markForDelete = True
                 self.fitness += 1
                 self.safe = True
-                print(self.id, "eating")
+#                print(self.id, "eating")
                 self.idle(food.energy)
 
                 self.eaten.add(food)

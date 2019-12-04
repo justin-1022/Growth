@@ -2,6 +2,7 @@ import numpy as np
 import math
 import random
 import paintcan
+import os
 
 random.seed(1)
 np.random.seed(1)

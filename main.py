@@ -144,25 +144,22 @@ class Growth(App):
 
     def assistedEvolution(self):
             for node in self.spawnNodes:
-                newCreatureSet = Genetics.luckSelector(node.creatureSet)
-                deletedCrets = node.creatureSet - newCreatureSet
-                self.creatures = self.creatures - deletedCrets
-                
+
+
+                #refilling to node capacity
                 if len(node.creatureSet) > 1:
+                    #removing the unfit and updating masterset
+                    newCreatureSet = Genetics.luckSelector(node.creatureSet)
+                    deletedCrets = node.creatureSet - newCreatureSet
+                    node.creatureSet = newCreatureSet
+                    self.creatures = self.creatures - deletedCrets
                     node.repopulate()
 
                 else:
+                    #just refilling for emptyish nodes
                     node.spawnCreatures()
 
-
-                self.creatures = self.creatures.union(node.creatureSet)
-                print(len(self.creatures), len(node.creatureSet))
-
-        else:
-            for node in self.spawnNodes:
-                node.creatureSet = node.creatureSet.intersection(self.creatures)
-                node.spawnCreatures()
-
+                #updating masterset
                 self.creatures = self.creatures.union(node.creatureSet)
                 print(len(self.creatures), len(node.creatureSet))
 

@@ -130,3 +130,8 @@ class Editor:
         xInc = HEIGHT//TILESIZE
 
         return xInc*x+y
+
+    @staticmethod
+    def tilePosFind(i):
+        #returns tile coordinates NOT absolute coordinates
+        return i//(HEIGHT//TILESIZE), i%(HEIGHT//TILESIZE)
