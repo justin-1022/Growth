@@ -1,10 +1,11 @@
 #graphics subclassing
 from header import *
 from tkinter import *
+import paintcan
 
 class Tile:
     #basic biome tile - never use this, subclass
-    foodList = []
+    foodSet = set([])
     def __init__(self, x, y, size=TILESIZE):
         #for drawing
         self.size = size
@@ -55,13 +56,13 @@ class Tile:
             stackAll = stackHiMid  + self.foodBook["lo"]
 
             if fate < self.foodBook["hi"]:
-                Tile.foodList.append(HiFood(x, y))
+                Tile.foodSet.add(HiFood(x, y))
 
             elif fate > self.foodBook["hi"] and fate < stackHiMid:
-                Tile.foodList.append(MidFood(x, y))
+                Tile.foodSet.add(MidFood(x, y))
 
             elif fate > stackHiMid and fate < stackAll:
-                Tile.foodList.append(LoFood(x, y))
+                Tile.foodSet.add(LoFood(x, y))
 
 
 class Grassland(Tile):
@@ -113,7 +114,7 @@ class Savanna(Tile):
     def __init__(self, x, y, size=TILESIZE):
         super().__init__(x, y, size)
         #for drawing
-        self.color = "lightbrown"
+        self.color = paintcan.toHex(paintcan.lightbrown)
 
         #tile food properties
         self.viability = random.random()

@@ -60,15 +60,15 @@ class Genetics:
         if isinstance(peeps, set):
             population = list(peeps)
 
-        minimum = len(population) * 0.5
+        minimum = int(len(population) * 0.5)
         tempSum = 0
         for creature in population:
             tempSum += creature.fitness
 
         avgFitness = tempSum / len(population)
         if avgFitness == 0:
-            avgFitness = 0.0001
-        print(avgFitness)#Need to send to file
+            avgFitness = 1000000
+#        print(avgFitness)#Need to send to file
 
         popCount = 0
         for i in range(len(population)):
@@ -76,8 +76,9 @@ class Genetics:
 
             luck = creature.fitness/(2*avgFitness)
             fate = random.random()
+#            print(luck, fate, creature.id)
 
-            if luck > fate:
+            if luck < fate:
                 population.pop(i-popCount)
                 popCount += 1
 

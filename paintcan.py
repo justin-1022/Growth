@@ -16,4 +16,8 @@ teal = (0, 128, 128)
 navy = (0, 0, 128)
 pink = (255, 128, 128)
 brown = (101, 67, 33)
+lightbrown = (202, 134, 66)
 lilac = (200, 162, 200)
+
+def toHex(color):
+    return "#%02x%02x%02x" % tuple(color)

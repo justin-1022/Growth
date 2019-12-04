@@ -7,7 +7,9 @@ random.seed(1)
 np.random.seed(1)
 
 WIDTH = 1200
-HEIGHT = 900
+HEIGHT = 700
+ALLWIDTH = 1200
+ALLHEIGHT = 900
 TILESIZE = 20
 
 GENE ={

@@ -36,7 +36,7 @@ class Creature:
         self.energy = self.energyReq#depleted by 1/2mv^2
 
         #info for drawing
-        self.size = 10 + (TILESIZE*2-10) * self.genome[GENE["size"]]
+        self.size = 10 + (TILESIZE-10) * self.genome[GENE["size"]]
         self.color = Creature.getColor(self.genome)
 
         #locational data/movement
@@ -79,6 +79,7 @@ class Creature:
         #asset management
         self.markForDelete = False
         self.safe = False
+        self.eaten = set([])
 
         #for evolving
         self.fitness = 0
@@ -98,7 +99,9 @@ class Creature:
         #mating between two Creatures
         childGenome = Genetics.crossover(self.genome, other.genome)
         childGenome = Genetics.mutate(childGenome)[0]
-        child = Creature(self.x, self.y, childGenome)
+        x = random.randint(0,WIDTH)
+        y = random.randint(0, HEIGHT)
+        child = Creature(x, y, childGenome)
         return child
 
     def getPublicInfo(self, other):
@@ -191,6 +194,9 @@ class Creature:
                 print(self.id, "eating")
                 self.idle(food.energy)
 
+                self.eaten.add(food)
+                print([food.id for food in self.eaten])
+
 
 
     def update(self, dt):
@@ -278,7 +284,7 @@ class Creature:
 
 
 
-class spawnNode:
+class SpawnNode:
     def __init__(self, x, y, count, genome1=None, genome2=None):
         #allows for spawning either random or controlled populations
         #1 genome = clones, 2=children of those two
@@ -292,11 +298,13 @@ class spawnNode:
         self.creatureSet = set([])
 
         self.spawnRadius = 3
+        self.color = "black"
+        self.size = TILESIZE
 
     def spawnCreatures(self):
         #creating actual creatures to be added to game
         if self.g2 is not None and self.g1 is not None:
-            for i in range(self.count):
+            while len(self.creatureSet) < self.count:
                 #figuring out wherre to put it
                 xMult = 1 if random.random() < 0.5 else -1
                 xAug = self.spawnRadius*random.random()*TILESIZE * xMult
@@ -314,7 +322,7 @@ class spawnNode:
                 self.creatureSet.add(Creature(genome))
 
         elif self.g1 is not None:
-            for i in range(self.count):
+            while len(self.creatureSet) < self.count:
                 #figuring out wherre to put it
                 xMult = 1 if random.random() < 0.5 else -1
                 xAug = self.spawnRadius*random.random()*TILESIZE * xMult
@@ -327,7 +335,7 @@ class spawnNode:
                 self.creatureSet.add(Creature(x, y, self.g1))
 
         else:
-            for i in range(self.count):
+            while len(self.creatureSet) < self.count:
                 #figuring out wherre to put it
                 xMult = 1 if random.random() < 0.5 else -1
                 xAug = self.spawnRadius*random.random()*TILESIZE * xMult
@@ -342,22 +350,29 @@ class spawnNode:
 
     def repopulate(self):
         creatures = tuple(self.creatureSet)
+        counter = 0
         while len(self.creatureSet) < self.count:
+            counter += 1
             parent1 = random.choice(creatures)
             parent2 = random.choice(creatures)
 
             child = parent1.mate(parent2)
 
             self.creatureSet.add(child)
+#            print("added", counter)
 #        print("Creatures spawned:", len(self.creatureSet))
 
 
     def draw(self, canvas, color=None):
         if color is None: color = self.color
+        x1 = self.x - self.size/2
+        y1 = self.y + self.size/2
+        x2 = self.x
+        y2 = self.y - self.size/2
+        x3 = self.x + self.size/2
+        y3 = self.y + self.size/2
 
-        canvas.create_oval(self.x - self.size/2, self.y - self.size/2,
-                self.x + self.size/2, self.y + self.size/2,
-                fill=color, width=0)
+        canvas.create_polygon(x1, y1, x2, y2, x3, y3, fill=color, width=0)
 
 """
 Genome indexing:
