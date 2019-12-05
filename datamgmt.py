@@ -47,8 +47,8 @@ class DataManagement:
 
                 mapList.append(newTile)
 
-                saveFile.close()
-                return mapList
+            saveFile.close()
+            return mapList
 
         except Exception:
             return None
@@ -89,33 +89,31 @@ class DataManagement:
     @staticmethod
     def importCreature(fileName):
         filePath = fileName
-        try:
-            saveFile = open(filePath, "r")
+        saveFile = open(filePath, "r")
 
-            fitness = float(saveFile.readline().strip())
-            genome = np.array(saveFile.readline.strip().split("-"))
+        fitness = float(saveFile.readline().strip())
 
-            return fitness, genome
+        genome = (saveFile.readline().strip().split("-"))
+        genome =  np.array([float(n) for n in genome])
 
-        except Exception:
-            return None
+        loadedCret = Creature(WIDTH/2, HEIGHT/2, genome)
+        loadedCret.fitness = fitness
+
+        return loadedCret
 
     @staticmethod
     def saveCreature(creature, fileName):
         filePath = fileName
-        try:
-            saveFile = open(filePath, "w")
+        saveFile = open(filePath, "w")
 
-            creatureString = ""
+        creatureString = ""
+        genomeList = [str(n) for n in list(creature.genome)]
 
-            creatureString += "%.2f\n" % creature.viability
-            creatureString += "-".join(creature.genome)
+        creatureString += "%.2f\n" % creature.fitness
+        creatureString += "-".join(genomeList)
 
-            saveFile.write(creatureString)
-            saveFile.close()
-
-        except Exception:
-            return None
+        saveFile.write(creatureString)
+        saveFile.close()
 
     @staticmethod
     def importNode(fileName):
@@ -127,8 +125,12 @@ class DataManagement:
         pass
 
     @staticmethod
-    def pickCreature():
-        pass
+    def pickCreature(xC, yC, creatureSet):
+        for creature in creatureSet:
+            if creature.clickCheck(xC, yC):
+                return creature
+
+
 def tilePosFind(i):
     #returns tile coordinates NOT absolute coordinates
     return i//(HEIGHT//TILESIZE), i%(HEIGHT//TILESIZE)

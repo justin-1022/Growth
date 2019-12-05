@@ -58,30 +58,35 @@ class Editor:
 
     #creature import export box
     cBox = (mapBox[0] + mapBoxWidth + thinSpacing, mapBox[1])
-    cBoxWidth = pickSize*10 + thinSpacing*3
+    cBoxWidth = pickSize*10 + thinSpacing*4
     cBoxHeight = thinSpacing*5 + pickSize*4
 
     iCreatureTxt = "Load\nCreature"
-    sCreatureTxt = "Save\nCreature"
+    sCreatureTxt = "Save\n<-"
+    pCreatureTxt = "Pick\nCreature"
     iCreature1 = Button(cBox[0] + thinSpacing, cBox[1] + thinSpacing, pickSize*2,
     pickSize, DataManagement.importCreature, "iCreature1", iCreatureTxt + "(1)")
 
-    sCreature1 = Button(cBox[0] + thinSpacing, cBox[1] + thinSpacing + pickSize,
-    pickSize*2, pickSize, DataManagement.saveCreature, "sCreature1", sCreatureTxt + "(1)")
+    sCreature1 = Button(cBox[0] + thinSpacing*3 + pickSize*9, cBox[1] + thinSpacing,
+            pickSize, pickSize*2, DataManagement.saveCreature, "sCreature1", sCreatureTxt + "(1)")
 
-#    pCreature1 = Button(WIDTH/2, HEIGHT + 50, 60, 30, DataManagement.pickCreature, "pCreature1")
-#    rCreature1 = Button(WIDTH/2, HEIGHT + 50, 60, 30, DataManagement.returnCreature, "pCreature2")
+    pCreature1 = Button(cBox[0] + thinSpacing, cBox[1] + thinSpacing + pickSize,
+            pickSize*2, pickSize, DataManagement.pickCreature, "pCreature1", pCreatureTxt + "(1)", True)
+
+    rCreature1 = DataButton(cBox[0] + thinSpacing*2 + pickSize*2, cBox[1] + thinSpacing,
+            pickSize*7, pickSize*2, None, "rCreature1")
 
     iCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + spacing + thinSpacing*2 + pickSize*2,
-    pickSize*2, pickSize, DataManagement.importCreature, "iCreature2", iCreatureTxt + "(2)")
+            pickSize*2, pickSize, DataManagement.importCreature, "iCreature2", iCreatureTxt + "(2)")
 
-    sCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + spacing + thinSpacing*2 + pickSize*3,
-    pickSize*2, pickSize, DataManagement.saveCreature, "sCreature2", sCreatureTxt + "(2)")
-#    pCreature2 = Button(WIDTH/2, HEIGHT + 50, 60, 30, DataManagement.pickCreature, "pCreature2")
-#    rCreature1 = Button(WIDTH/2, HEIGHT + 50, 60, 30, DataManagement.returnCreature, "pCreature2")
+    sCreature2 = Button(cBox[0] + thinSpacing*3 + pickSize*9, cBox[1] + spacing + thinSpacing*2 + pickSize*2,
+            pickSize, pickSize*2, DataManagement.saveCreature, "sCreature2", sCreatureTxt + "(2)")
 
+    pCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + spacing + thinSpacing*2 + pickSize*3,
+            pickSize*2, pickSize, DataManagement.pickCreature, "pCreature2", pCreatureTxt + "(2)", True)
 
-
+    rCreature2 = DataButton(cBox[0] + thinSpacing*2 + pickSize*2,
+            cBox[1] + thinSpacing*2 + spacing + pickSize*2, pickSize*7, pickSize*2, None, "rCreature2")
 
     def __init__(self):
         pass

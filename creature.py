@@ -80,6 +80,8 @@ class Creature:
         self.markForDelete = False
         self.safe = False
         self.eaten = set([])
+        self.highlight1 = False
+        self.highlight2 = False
 
         #for evolving
         self.fitness = 0
@@ -93,7 +95,6 @@ class Creature:
 
         else:
             return False
-
 
     def mate(self, other):
         #mating between two Creatures
@@ -113,6 +114,16 @@ class Creature:
         canvas.create_oval(self.x - self.size/2, self.y - self.size/2,
                 self.x + self.size/2, self.y + self.size/2,
                 fill=color, width=0)
+
+        if self.highlight1:
+            canvas.create_oval(self.x - self.size/4, self.y - self.size/4,
+                    self.x + self.size/4, self.y + self.size/4,
+                    fill="yellow", width=0)
+
+        if self.highlight2:
+            canvas.create_oval(self.x - self.size/4, self.y - self.size/4,
+                    self.x + self.size/4, self.y + self.size/4,
+                    fill="pink", width=0)
 
     @staticmethod
     def getColor(genome):
@@ -158,8 +169,6 @@ class Creature:
             else:
                 self.infoVector.extend([-1, -1, -1])
 
-
-
             self.infoVector = np.vstack(np.array(self.infoVector))
 
             self.decisionVector = feedForward(self.infoVector, self.w1, self.w2,
@@ -198,7 +207,7 @@ class Creature:
                 print([food.id for food in self.eaten])
 
     def clickCheck(self, xC, yC):
-        if (xC-self.x)**2 + (yC-self.y)**2 <= self.size/2:
+        if (xC-self.x)**2 + (yC-self.y)**2 <= (self.size/2)**2:
             return True
 
         else:

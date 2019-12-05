@@ -1,7 +1,6 @@
 #general purpose button class using tkinter
-#sticky makes the button latch, otherwise its one press
-#if the button is sticky, f is assumed to be continuous and
-#should be disableable by calling again (with different arguments)
+#wait makes the button latch, otherwise its one press
+#if the button is wait, will wait for a second click event before running f
 
 #Tkinter button was somewhat inadequate
 
@@ -9,7 +8,7 @@ from header import *
 
 class Button:
     buttonDict = {}
-    def __init__(self, x, y, width, height, f, name, text="", color="lightblue", altColor="yellow", sticky=False):
+    def __init__(self, x, y, width, height, f, name, text="", wait=False, color="lightblue", altColor="yellow"):
         self.id = random.randint(1, 1000000000)
         self.f = f
         self.name = name
@@ -24,12 +23,12 @@ class Button:
         self.height = height
         self.isClicked = False
 
-        self.sticky = sticky #if true button will stay clicked until clicked again
+        self.wait = wait #if true button will stay clicked until clicked again
 
         Button.buttonDict[name] = self
 
     def onClick(self, **kwargs):
-        if not self.sticky:
+        if not self.wait:
             if not self.isClicked:
                 self.isClicked = True
                 self.drawColor = self.altColor
@@ -40,14 +39,6 @@ class Button:
             if not self.isClicked:
                 self.isClicked = True
                 self.drawColor = self.altColor
-
-                return self.f(**kwargs)
-
-            else:
-                return self.onRelease(**kwargs)
-
-
-
 
     def clickCheck(self, xC, yC):
         if (xC >= self.x and xC <= self.x + self.width and
@@ -61,11 +52,11 @@ class Button:
         self.isClicked = False
         self.drawColor = self.color
 
-        if self.sticky:
+        if self.wait:
             return self.f(**kwargs)
 
     def update(self, xC, yC, **kwargs):
-        if not self.sticky:
+        if not self.wait:
             if self.clickCheck(xC, yC) and not self.isClicked:
                 returnVal = self.onClick(**kwargs)
 
@@ -92,13 +83,15 @@ class Button:
                         text=self.text, font=("system", 7), justify="center")
 
 class DataButton(Button):
-    #making this sticky will probably break it
-    def __init__(self, x, y, width, height, f, name, text="", color="lightblue", altColor="yellow", sticky=False):
-        super().__init__(x, y, width, height, f, name, text="", color="lightblue", altColor="yellow", sticky=False)
+    #making this wait will probably break it
+    #f will not be called ever - set to None
+    def __init__(self, x, y, width, height, f, name, text="", color="lightblue", altColor="yellow", wait=False):
+        super().__init__(x, y, width, height, f, name, text="", color="lightblue", altColor="yellow", wait=False)
         self.data = None
+        self.text = "No data"
 
     def onClick(self, **kwargs):
-        if not self.sticky:
+        if not self.wait:
             if not self.isClicked:
                 self.isClicked = True
                 self.drawColor = self.altColor
@@ -119,5 +112,14 @@ class DataButton(Button):
         self.isClicked = False
         self.drawColor = self.color
 
-        if self.sticky:
-            return self.f(**kwargs)
+        if self.wait:
+            return self.data
+
+    def draw(self, canvas):
+        #changin how text is displayed
+        canvas.create_rectangle(self.x, self.y,
+            self.x + self.width, self.y + self.height, fill=self.drawColor)
+
+        if self.text != "":
+            canvas.create_text(self.x + self.width/2, self.y + self.height/2,
+                        text=self.text, font=("system", 10), justify="left")

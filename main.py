@@ -62,31 +62,92 @@ class Growth(App):
             self.eMode = not self.eMode
 
     def mousePressed(self, event):
+        #note - this would be a lot cleaner if it was inside some buttonhandling
+        #function, but doing so seems like it would make passing in data difficult
+        #will explore doing so in the future
         if self.eMode:
             Editor.selection(event.x, event.y)
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
             Editor.nodeInsert(event.x, event.y, 10, self.spawnNodes)
-            if Editor.iMap.clickCheck(event.x, event.y):
-                self.isPaused, self.noEdit = True, True
-                filename = filedialog.askopenfilename(initialdir="savedata/maps")
-                self.tiles = Editor.iMap.onClick(fileName=filename)
-                self.mouseReleased(event)
 
-            elif Editor.sMap.clickCheck(event.x, event.y):
-                self.isPaused, self.noEdit = True, True
-                filename = filedialog.asksaveasfilename(initialdir="savedata/maps")
-                Editor.sMap.onClick(mapList = self.tiles, fileName=filename)
-                self.mouseReleased(event)
+        if Editor.pCreature1.isClicked:
+            c1 = Editor.pCreature1.onRelease(xC=event.x, yC=event.y, creatureSet=self.creatures)
+            if c1 is not None:
+                if Editor.rCreature1.data != None: Editor.rCreature1.data.highlight1 = False
+                Editor.rCreature1.data = c1
+                Editor.rCreature1.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                                (c1.id, c1.fitness, int(c1.x), int(c1.y)))
+                c1.highlight1 = True
 
+        if Editor.pCreature2.isClicked:
+            c2 = Editor.pCreature2.onRelease(xC=event.x, yC=event.y, creatureSet=self.creatures)
+            if c2 is not None:
+                if Editor.rCreature2.data != None: Editor.rCreature2.data.highlight2 = False
+                Editor.rCreature2.data = c2
+                Editor.rCreature2.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                        (c2.id, c2.fitness, int(c2.x), int(c2.y)))
+                c2.highlight2 = True
+
+        if Editor.iMap.clickCheck(event.x, event.y):
+            self.isPaused =  True
+            filename = filedialog.askopenfilename(initialdir="savedata/maps")
+            loadedMap = Editor.iMap.onClick(fileName=filename)
+            if loadedMap is not None:
+                self.tiles = loadedMap
+            self.mouseReleased(event)
+
+        elif Editor.sMap.clickCheck(event.x, event.y):
+            self.isPaused = True
+            filename = filedialog.asksaveasfilename(initialdir="savedata/maps")
+            Editor.sMap.onClick(mapList = self.tiles, fileName=filename)
+            self.mouseReleased(event)
+
+        elif Editor.pCreature1.clickCheck(event.x, event.y):
+            Editor.pCreature1.onClick()
+
+        elif Editor.pCreature2.clickCheck(event.x, event.y):
+            Editor.pCreature2.onClick()
+
+        elif Editor.sCreature1.clickCheck(event.x, event.y):
+            self.isPaused = True
+            if Editor.rCreature1.data != None:
+                c1 = Editor.rCreature1.data
+                filename = filedialog.asksaveasfilename(initialdir="savedata/creatures")
+                Editor.sCreature1.onClick(fileName=filename, creature=c1)
+
+        elif Editor.sCreature2.clickCheck(event.x, event.y):
+            self.isPaused = True
+            if Editor.rCreature2.data != None:
+                c2 = Editor.rCreature2.data
+                filename = filedialog.asksaveasfilename(initialdir="savedata/creatures")
+                Editor.sCreature2.onClick(fileName=filename, creature=c2)
+
+        elif Editor.iCreature1.clickCheck(event.x, event.y):
+            self.isPaused = True
+            filename = filedialog.askopenfilename(initialdir="savedata/creatures")
+            c1 = Editor.iCreature1.onClick(fileName=filename)
+            if c1 is not None:
+                Editor.rCreature1.data = c1
+                Editor.rCreature1.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                                (c1.id, c1.fitness, int(c1.x), int(c1.y)))
+
+        elif Editor.iCreature2.clickCheck(event.x, event.y):
+            self.isPaused = True
+            filename = filedialog.askopenfilename(initialdir="savedata/creatures")
+            c2 = Editor.iCreature2.onClick(fileName=filename)
+            if c2 is not None:
+                Editor.rCreature2.data = c2
+                Editor.rCreature2.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                                (c2.id, c2.fitness, int(c2.x), int(c2.y)))
 
     def mouseDragged(self, event):
-        if self.eMode and not self.noEdit:
+        if self.eMode:
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
 
     def mouseReleased(self, event):
         self.noEdit = False
         for button in Button.buttonDict.values():
-            if button.isClicked and not button.sticky:
+            if button.isClicked and not button.wait:
                 button.onRelease()
 
     def timerFired(self):
@@ -121,6 +182,15 @@ class Growth(App):
                     cret.decide()
 
                     cret.update(dt)
+                    if Editor.rCreature1.data is not None:
+                        c1 = Editor.rCreature1.data
+                        Editor.rCreature1.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                                        (c1.id, c1.fitness, int(c1.x), int(c1.y)))
+
+                    if Editor.rCreature2.data is not None:
+                        c2 = Editor.rCreature2.data
+                        Editor.rCreature2.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                                (c2.id, c2.fitness, int(c2.x), int(c2.y)))
 
                     foodAmnt = len(Tile.foodSet)
                     Tile.foodSet = Tile.foodSet - cret.eaten
@@ -155,9 +225,9 @@ class Growth(App):
 #                print(count, len(self.creatures), len(tt))
             population[i].draw(canvas)
 
-        if self.eMode:
-            self.theEditor.draw(canvas)
+        self.theEditor.draw(canvas)
 
+        if self.eMode:
             for node in self.spawnNodes:
                 node.draw(canvas)
 
