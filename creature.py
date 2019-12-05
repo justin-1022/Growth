@@ -197,7 +197,12 @@ class Creature:
                 self.eaten.add(food)
                 print([food.id for food in self.eaten])
 
+    def clickCheck(self, xC, yC):
+        if (xC-self.x)**2 + (yC-self.y)**2 <= self.size/2:
+            return True
 
+        else:
+            return False
 
     def update(self, dt):
 #        print(self.id, "updating")

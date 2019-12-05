@@ -16,6 +16,7 @@ from environment import *
 from creature import *
 from genetics import *
 from editor import *
+from button import *
 import time
 
 class Growth(App):
@@ -23,6 +24,7 @@ class Growth(App):
         self.pause = True
         self.run = True
         self.eMode = True
+        self.noEdit = False #fixes bug where filedialog triggers mouseDragged
         self.timerDelay = 0
         self.scrollX = 0
         self.scrollMargin = 50
@@ -49,6 +51,9 @@ class Growth(App):
 
         self.theEditor = Editor()
 
+        self.iCret1 = None
+        self.iCret2 = None
+
     def keyPressed(self, event):
         if event.key == "p":
             self.pause = not self.pause
@@ -61,12 +66,28 @@ class Growth(App):
             Editor.selection(event.x, event.y)
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
             Editor.nodeInsert(event.x, event.y, 10, self.spawnNodes)
+            if Editor.iMap.clickCheck(event.x, event.y):
+                self.isPaused, self.noEdit = True, True
+                filename = filedialog.askopenfilename(initialdir="savedata/maps")
+                self.tiles = Editor.iMap.onClick(fileName=filename)
+                self.mouseReleased(event)
+
+            elif Editor.sMap.clickCheck(event.x, event.y):
+                self.isPaused, self.noEdit = True, True
+                filename = filedialog.asksaveasfilename(initialdir="savedata/maps")
+                Editor.sMap.onClick(mapList = self.tiles, fileName=filename)
+                self.mouseReleased(event)
 
 
     def mouseDragged(self, event):
-        if self.eMode:
+        if self.eMode and not self.noEdit:
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
 
+    def mouseReleased(self, event):
+        self.noEdit = False
+        for button in Button.buttonDict.values():
+            if button.isClicked and not button.sticky:
+                button.onRelease()
 
     def timerFired(self):
         if not self.pause:
