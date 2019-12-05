@@ -71,6 +71,8 @@ class Growth(App):
         #note - this would be a lot cleaner if it was inside some buttonhandling
         #function, but doing so seems like it would make passing in data difficult
         #will explore doing so in the future
+
+        #all button handling of some form
         if self.eMode:
             Editor.selection(event.x, event.y)
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
@@ -110,6 +112,9 @@ class Growth(App):
             elif Analysis.topC.clickCheck(event.x, event.y):
                 c1 = Analysis.topC.onClick()
 
+            elif Analysis.gTopC.clickCheck(event.x, event.y):
+                c1 = Analysis.gTopC.onClick()
+
             if c1 is not None:
                 Editor.nCreature1.data = c1
                 Editor.g1 = c1.genome
@@ -130,6 +135,9 @@ class Growth(App):
 
             elif Analysis.topC.clickCheck(event.x, event.y):
                 c2 = Analysis.topC.onClick()
+
+            elif Analysis.gTopC.clickCheck(event.x, event.y):
+                c2 = Analysis.gTopC.onClick()
 
             if c2 is not None:
                 Editor.nCreature2.data = c2
@@ -270,6 +278,7 @@ class Growth(App):
                     cret.decide()
 
                     cret.update(dt)
+                    #realtime updating button text
                     if Editor.rCreature1.data is not None:
                         c1 = Editor.rCreature1.data
                         Editor.rCreature1.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
@@ -298,6 +307,7 @@ class Growth(App):
 
                     counter = 1
                     if cret.markForDelete:
+                        #removing the ones that starved
                         self.creatures.remove(cret)
                         self.genDeathCount[-1] += 1
 
@@ -314,6 +324,7 @@ class Growth(App):
                     Analysis.gTopC.text = "Alltime Top Creature\nID=%d\nFitness=%.2f" % (c2.id, c2.fitness)
 
             if self.secondHand % 500 == 0:
+                #generation timer
                 self.assistedEvolution()
                 self.foods = Tile.foodSet = set([])
                 for tile in self.tiles:
