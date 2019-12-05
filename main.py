@@ -22,7 +22,7 @@ import time
 
 class Growth(App):
     def appStarted(self):
-        self.pause = True
+        self.isPaused = True
         self.run = True
         self.eMode = False
         self.timerDelay = 0
@@ -62,7 +62,7 @@ class Growth(App):
 
     def keyPressed(self, event):
         if event.key == "p":
-            self.pause = not self.pause
+            self.isPaused = not self.isPaused
 
         if event.key == "e":
             self.eMode = not self.eMode
@@ -222,6 +222,18 @@ class Growth(App):
         elif Analysis.deaths.clickCheck(event.x, event.y):
             Analysis.deaths.onClick(deathList=self.genDeathCount)
 
+        elif Editor.pause.clickCheck(event.x, event.y):
+            Editor.pause.onClick()
+            self.isPaused = not self.isPaused
+
+        elif Editor.editB.clickCheck(event.x, event.y):
+            Editor.editB.onClick()
+            self.eMode = not self.eMode
+
+        elif Editor.genStep.clickCheck(event.x, event.y):
+            Editor.genStep.onClick()
+            self.secondHand = 499
+
     def mouseDragged(self, event):
         if self.eMode:
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
@@ -232,7 +244,7 @@ class Growth(App):
                 button.onRelease()
 
     def timerFired(self):
-        if not self.pause:
+        if not self.isPaused:
             self.secondHand += 1
 #            print(self.secondHand)
             dt = self.tick()
@@ -301,8 +313,6 @@ class Growth(App):
                     c2 = Analysis.gTopC.data
                     Analysis.gTopC.text = "Alltime Top Creature\nID=%d\nFitness=%.2f" % (c2.id, c2.fitness)
 
-
-
             if self.secondHand % 500 == 0:
                 self.assistedEvolution()
                 self.foods = Tile.foodSet = set([])
@@ -321,7 +331,7 @@ class Growth(App):
         population = tuple(self.creatures)
         for i in range(len(population)):
             count += 1
-#            if not self.pause:
+#            if not self.isPaused:
 #                print(count, len(self.creatures), len(tt))
             population[i].draw(canvas)
 

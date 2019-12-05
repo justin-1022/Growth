@@ -19,6 +19,8 @@ Tiles = basic environment unit on map, contains different properties for food, e
 
 Creatures = the circles shown on screen.  They can either eat or move. All traits (speed, color, size, etc) are determined by the creature's genome
 
+Decisions = creatures make decisions using a modified FFNN that learns via genetics only
+
 SpawnNode, Node = spawns in creatures (only visible in edit mode)
 
 Food = speckles visible on screen, spawend by tiles, consumed by creatures for energy, 3 tiers of food available
@@ -49,4 +51,10 @@ Node Config:
   Clear selections by clicking the box with the creature (to the left of add)
 
 
-More features to come
+Analysis:
+  plots can be displayed corresponding to the buttons shown
+
+  top creature buttons function like large creature buttons in creature loading/access block
+
+NOTE - when the file dialog opens tkinter will not call mouseReleased.  Whenever saving/loading click a blank spot before doing anything else or risk
+mouseDragged never being called again (among other horrors)

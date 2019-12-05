@@ -6,6 +6,8 @@ from creature import *
 from datamgmt import *
 from button import *
 
+def doNothing(): return
+
 class Editor:
     #this class is UgLy!!!, but it works lol
     #me in the future (or TA reading this) - you might want to get some tea first
@@ -18,7 +20,7 @@ class Editor:
     thinSpacing = 10
     pickSize = 30
 
-    tileBox = (spacing, HEIGHT + spacing*1.5)#top left corner
+    tileBox = (spacing*6, HEIGHT + spacing*1.5)#top left corner
     tileBoxWidth = pickSize*2 + spacing*3
     tileBoxHeight = pickSize*3 + spacing*4
 
@@ -108,6 +110,25 @@ class Editor:
     nCreature2 = DataButton(nodeBox[0] + thinSpacing*2 + pickSize,
         nodeBox[1] + thinSpacing*2 + pickSize, pickSize*3, pickSize, None, "nCreature2")
 
+    #hacking a bit here
+    aBox = (cBox[0] + cBoxWidth + thinSpacing, cBox[1])
+    aBoxWidth = thinSpacing*3 + pickSize*8
+    aBoxHeight = thinSpacing*3 + pickSize*4
+
+    #misc box
+    miscBox = (aBox[0] + aBoxWidth + thinSpacing, cBox[1])
+    miscBoxWidth = thinSpacing*2 + pickSize*2
+    miscBoxHeight = aBoxHeight
+
+    pause = ToggleButton(miscBox[0] + thinSpacing, miscBox[1] + thinSpacing, pickSize*2,
+    pickSize, None, "pause", "Play/Pause")
+
+    editB = ToggleButton(miscBox[0] + thinSpacing, miscBox[1] + thinSpacing*2 + pickSize,
+    pickSize*2, pickSize, None, "editB", "Toggle\nEdit Mode")
+
+    genStep = Button(miscBox[0] + thinSpacing, miscBox[1] + thinSpacing*3 + pickSize*2,
+    pickSize*2, pickSize*2-thinSpacing, doNothing, "genStep", "Step\nGeneration")
+
     g1 = None
     g2 = None
 
@@ -163,6 +184,11 @@ class Editor:
         canvas.create_rectangle(Editor.nodeBox[0], Editor.nodeBox[1],
         Editor.nodeBox[0] + Editor.nodeBoxWidth,
         Editor.nodeBox[1] + Editor.nodeBoxHeight, fill="darkgrey")
+
+        #misc box
+        canvas.create_rectangle(Editor.miscBox[0], Editor.miscBox[1],
+        Editor.miscBox[0] + Editor.miscBoxWidth,
+        Editor.miscBox[1] + Editor.miscBoxHeight, fill="darkgrey")
 
     @staticmethod
     def coordConvert(xC, yC):

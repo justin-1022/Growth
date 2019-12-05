@@ -82,6 +82,20 @@ class Button:
         if self.text != "":
             canvas.create_text(self.x + self.width/2, self.y + self.height/2,
                         text=self.text, font=("system", 7), justify="center")
+class ToggleButton(Button):
+    def __init__(self, x, y, width, height, f, name, text="", color="lightblue", altColor="yellow", wait=False):
+        super().__init__(x, y, width, height, f, name, text=text, color="lightblue", altColor="yellow", wait=False)
+        self.wait=True
+
+    def onClick(self, **kwargs):
+        if not self.isClicked:
+            self.isClicked = True
+            self.drawColor = self.altColor
+
+        else:
+            self.isClicked = False
+            self.drawColor = self.color
+
 
 class DataButton(Button):
     #making this wait will probably break it

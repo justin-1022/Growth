@@ -83,17 +83,17 @@ class Analysis:
     aBoxWidth = thinSpacing*3 + pickSize*8
     aBoxHeight = thinSpacing*3 + pickSize*4
 
-    aGens = Button(aBox[0] + thinSpacing, aBox[1] + thinSpacing, pickSize*2, pickSize,
+    aGens = Button(aBox[0] + thinSpacing, aBox[1] + thinSpacing, pickSize*4, pickSize,
                     avgOverGens, "aGens", "plot avg\nFitness")
 
-    aNGens = Button(aBox[0] + thinSpacing, aBox[1] + thinSpacing*2 + pickSize,
-        pickSize*2, pickSize, nodeAvgOverGens, "aNGens", "plot avg\nNode Fitness")
+    aNGens = Button(aBox[0] + thinSpacing*2 + pickSize*4, aBox[1] + thinSpacing,
+        pickSize*4, pickSize, nodeAvgOverGens, "aNGens", "plot avg\nNode Fitness")
 
-    mapComp = Button(aBox[0] + thinSpacing*2 + pickSize*2, aBox[1] + thinSpacing,
-        pickSize*2, pickSize, mapComp, "mapComp", "plot map\nDistribution")
+    mapComp = Button(aBox[0] + thinSpacing, aBox[1] + thinSpacing*2 + pickSize,
+        pickSize*4, pickSize, mapComp, "mapComp", "plot map\nDistribution")
 
-    deaths = Button(aBox[0] + thinSpacing*2 + pickSize*2, aBox[1] + thinSpacing*2 + pickSize,
-        pickSize*2, pickSize, numDeaths, "deaths", "plot \nDeath Count")
+    deaths = Button(aBox[0] + thinSpacing*2 + pickSize*4, aBox[1] + thinSpacing*2 + pickSize,
+        pickSize*4, pickSize, numDeaths, "deaths", "plot \nDeath Count")
 
     topC = DataButton(aBox[0] + thinSpacing, aBox[1] + thinSpacing*3 + pickSize*2,
         pickSize*4, pickSize*2-thinSpacing, None, "topC")
