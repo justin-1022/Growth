@@ -88,32 +88,40 @@ class DataManagement:
 
     @staticmethod
     def importCreature(fileName):
-        filePath = fileName
-        saveFile = open(filePath, "r")
+        try:
+            filePath = fileName
+            saveFile = open(filePath, "r")
 
-        fitness = float(saveFile.readline().strip())
+            fitness = float(saveFile.readline().strip())
 
-        genome = (saveFile.readline().strip().split("-"))
-        genome =  np.array([float(n) for n in genome])
+            genome = (saveFile.readline().strip().split("-"))
+            genome =  np.array([float(n) for n in genome])
 
-        loadedCret = Creature(WIDTH/2, HEIGHT/2, genome)
-        loadedCret.fitness = fitness
+            loadedCret = Creature(WIDTH/2, HEIGHT/2, genome)
+            loadedCret.fitness = fitness
 
-        return loadedCret
+            return loadedCret
+
+        except Exception:
+            return None
 
     @staticmethod
     def saveCreature(creature, fileName):
-        filePath = fileName
-        saveFile = open(filePath, "w")
+        try:
+            filePath = fileName
+            saveFile = open(filePath, "w")
 
-        creatureString = ""
-        genomeList = [str(n) for n in list(creature.genome)]
+            creatureString = ""
+            genomeList = [str(n) for n in list(creature.genome)]
 
-        creatureString += "%.2f\n" % creature.fitness
-        creatureString += "-".join(genomeList)
+            creatureString += "%.2f\n" % creature.fitness
+            creatureString += "-".join(genomeList)
 
-        saveFile.write(creatureString)
-        saveFile.close()
+            saveFile.write(creatureString)
+            saveFile.close()
+
+        except Exception:
+            return None
 
     @staticmethod
     def importNode(fileName):
@@ -129,6 +137,10 @@ class DataManagement:
         for creature in creatureSet:
             if creature.clickCheck(xC, yC):
                 return creature
+
+    @staticmethod
+    def addCreature(creature):
+        return creature
 
 
 def tilePosFind(i):

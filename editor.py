@@ -59,7 +59,7 @@ class Editor:
     #creature import export box
     cBox = (mapBox[0] + mapBoxWidth + thinSpacing, mapBox[1])
     cBoxWidth = pickSize*10 + thinSpacing*4
-    cBoxHeight = thinSpacing*5 + pickSize*4
+    cBoxHeight = thinSpacing*3 + pickSize*4
 
     iCreatureTxt = "Load\nCreature"
     sCreatureTxt = "Save\n<-"
@@ -76,24 +76,46 @@ class Editor:
     rCreature1 = DataButton(cBox[0] + thinSpacing*2 + pickSize*2, cBox[1] + thinSpacing,
             pickSize*7, pickSize*2, None, "rCreature1")
 
-    iCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + spacing + thinSpacing*2 + pickSize*2,
+    iCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + thinSpacing*2 + pickSize*2,
             pickSize*2, pickSize, DataManagement.importCreature, "iCreature2", iCreatureTxt + "(2)")
 
-    sCreature2 = Button(cBox[0] + thinSpacing*3 + pickSize*9, cBox[1] + spacing + thinSpacing*2 + pickSize*2,
+    sCreature2 = Button(cBox[0] + thinSpacing*3 + pickSize*9, cBox[1] + thinSpacing*2 + pickSize*2,
             pickSize, pickSize*2, DataManagement.saveCreature, "sCreature2", sCreatureTxt + "(2)")
 
-    pCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + spacing + thinSpacing*2 + pickSize*3,
+    pCreature2 = Button(cBox[0] + thinSpacing, cBox[1] + thinSpacing*2 + pickSize*3,
             pickSize*2, pickSize, DataManagement.pickCreature, "pCreature2", pCreatureTxt + "(2)", True)
 
     rCreature2 = DataButton(cBox[0] + thinSpacing*2 + pickSize*2,
-            cBox[1] + thinSpacing*2 + spacing + pickSize*2, pickSize*7, pickSize*2, None, "rCreature2")
+            cBox[1] + thinSpacing*2 + pickSize*2, pickSize*7, pickSize*2, None, "rCreature2")
+
+    #node insertion box
+    nodeBox = (mapBox[0], mapBox[1] + mapBoxHeight + thinSpacing)
+    nodeBoxWidth = thinSpacing*3 + pickSize*4
+    nodeBoxHeight = thinSpacing*3 + pickSize*2
+    aNCreatureTxt = "add->"
+
+    aNCreature1 = Button(nodeBox[0] + thinSpacing, nodeBox[1] + thinSpacing,
+                pickSize, pickSize, DataManagement.addCreature, "aNCreature1",
+                aNCreatureTxt, True)
+
+    aNCreature2 = Button(nodeBox[0] + thinSpacing, nodeBox[1] + thinSpacing*2 + pickSize,
+                pickSize, pickSize, DataManagement.addCreature, "aNCreature2",
+                aNCreatureTxt, True)
+
+    nCreature1 = DataButton(nodeBox[0] + thinSpacing*2 + pickSize, nodeBox[1] + thinSpacing,
+                pickSize*3, pickSize, None, "nCreature1")
+
+    nCreature2 = DataButton(nodeBox[0] + thinSpacing*2 + pickSize,
+        nodeBox[1] + thinSpacing*2 + pickSize, pickSize*3, pickSize, None, "nCreature2")
+
+    g1 = None
+    g2 = None
 
     def __init__(self):
         pass
 
     def pickCreature(self):
         pass
-
 
     def draw(self, canvas):
         #tile selection stuff
@@ -139,6 +161,11 @@ class Editor:
         canvas.create_rectangle(Editor.cBox[0], Editor.cBox[1],
         Editor.cBox[0] + Editor.cBoxWidth,
         Editor.cBox[1] + Editor.cBoxHeight, fill="darkgrey")
+
+        #node box
+        canvas.create_rectangle(Editor.nodeBox[0], Editor.nodeBox[1],
+        Editor.nodeBox[0] + Editor.nodeBoxWidth,
+        Editor.nodeBox[1] + Editor.nodeBoxHeight, fill="darkgrey")
 
         for button in Button.buttonDict.values():
             button.draw(canvas)
@@ -186,7 +213,10 @@ class Editor:
         elif tileType == "marsh":
             tileList[Editor.tileFind(x, y)] = Marsh(inSpot.x, inSpot.y)
 
-    def nodeInsert(xC, yC, count, nodeList, g1=None, g2=None):
+    def nodeInsert(xC, yC, count, nodeList):
+        g1 = Editor.g1
+        g2 = Editor.g2
+        print(g1 is None, g2 is None)
         if Editor.selected != "node": return None
         if xC > WIDTH or yC > HEIGHT: return None
         nodeList.append(SpawnNode(xC, yC, count, g1, g2))

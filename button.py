@@ -2,7 +2,7 @@
 #wait makes the button latch, otherwise its one press
 #if the button is wait, will wait for a second click event before running f
 
-#Tkinter button was somewhat inadequate
+#Tkinter button wasn't versatile enough so I made my own (superior) button
 
 from header import *
 
@@ -26,6 +26,7 @@ class Button:
         self.wait = wait #if true button will stay clicked until clicked again
 
         Button.buttonDict[name] = self
+#        print("added", name)
 
     def onClick(self, **kwargs):
         if not self.wait:
@@ -122,4 +123,4 @@ class DataButton(Button):
 
         if self.text != "":
             canvas.create_text(self.x + self.width/2, self.y + self.height/2,
-                        text=self.text, font=("system", 10), justify="left")
+                        text=self.text, font=("system", 8), justify="left")

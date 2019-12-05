@@ -1,5 +1,5 @@
 from header import *
-from genetics import Genetics
+from genetics import *
 import numpy as np
 from environment import *
 from decisions import *
@@ -204,7 +204,7 @@ class Creature:
                 self.idle(food.energy)
 
                 self.eaten.add(food)
-                print([food.id for food in self.eaten])
+                #print([food.id for food in self.eaten])
 
     def clickCheck(self, xC, yC):
         if (xC-self.x)**2 + (yC-self.y)**2 <= (self.size/2)**2:
@@ -328,12 +328,12 @@ class SpawnNode:
                 yAug = self.spawnRadius*random.random()*TILESIZE * yMult
                 y = self.y + yAug
 
-                genome = crossover(g1, g2)
+                genome = Genetics.crossover(self.g1, self.g2)
                 cret = Creature(x, y, genome)
 
-                cret.p1Genome, cret.p2Genome = g1, g2
+                cret.p1Genome, cret.p2Genome = self.g1, self.g2
 
-                self.creatureSet.add(Creature(genome))
+                self.creatureSet.add(Creature(x, y, genome))
 
         elif self.g1 is not None:
             while len(self.creatureSet) < self.count:

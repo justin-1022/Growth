@@ -23,8 +23,7 @@ class Growth(App):
     def appStarted(self):
         self.pause = True
         self.run = True
-        self.eMode = True
-        self.noEdit = False #fixes bug where filedialog triggers mouseDragged
+        self.eMode = False
         self.timerDelay = 0
         self.scrollX = 0
         self.scrollMargin = 50
@@ -75,7 +74,7 @@ class Growth(App):
             if c1 is not None:
                 if Editor.rCreature1.data != None: Editor.rCreature1.data.highlight1 = False
                 Editor.rCreature1.data = c1
-                Editor.rCreature1.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                Editor.rCreature1.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
                                 (c1.id, c1.fitness, int(c1.x), int(c1.y)))
                 c1.highlight1 = True
 
@@ -84,9 +83,45 @@ class Growth(App):
             if c2 is not None:
                 if Editor.rCreature2.data != None: Editor.rCreature2.data.highlight2 = False
                 Editor.rCreature2.data = c2
-                Editor.rCreature2.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                Editor.rCreature2.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
                         (c2.id, c2.fitness, int(c2.x), int(c2.y)))
                 c2.highlight2 = True
+
+        if Editor.aNCreature1.isClicked:
+            c1 = None
+            Editor.aNCreature1.onRelease(creature = c1)
+            if Editor.rCreature1.clickCheck(event.x, event.y):
+                c1 = Editor.rCreature1.onClick()
+
+            elif Editor.rCreature2.clickCheck(event.x, event.y):
+                c1 = Editor.rCreature2.onClick()
+
+            elif Editor.nCreature2.clickCheck(event.x, event.y):
+                c1 = Editor.nCreature2.onClick()
+
+            if c1 is not None:
+                Editor.nCreature1.data = c1
+                Editor.g1 = c1.genome
+                Editor.nCreature1.text = "ID=%d\nFitness=%.2f" % (c1.id, c1.fitness)
+
+        if Editor.aNCreature2.isClicked:
+            c2 = None
+            Editor.aNCreature2.onRelease(creature = c2)
+
+            if Editor.rCreature1.clickCheck(event.x, event.y):
+                c2 = Editor.rCreature1.onClick()
+
+            elif Editor.rCreature2.clickCheck(event.x, event.y):
+                c2 = Editor.rCreature2.onClick()
+
+            elif Editor.nCreature2.clickCheck(event.x, event.y):
+                c2 = Editor.nCreature2.onClick()
+
+            if c2 is not None:
+                Editor.nCreature2.data = c2
+                Editor.g2 = c2.genome
+                Editor.nCreature2.text = "ID=%d\nFitness=%.2f" % (c2.id, c2.fitness)
+
 
         if Editor.iMap.clickCheck(event.x, event.y):
             self.isPaused =  True
@@ -128,7 +163,7 @@ class Growth(App):
             c1 = Editor.iCreature1.onClick(fileName=filename)
             if c1 is not None:
                 Editor.rCreature1.data = c1
-                Editor.rCreature1.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                Editor.rCreature1.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
                                 (c1.id, c1.fitness, int(c1.x), int(c1.y)))
 
         elif Editor.iCreature2.clickCheck(event.x, event.y):
@@ -137,8 +172,26 @@ class Growth(App):
             c2 = Editor.iCreature2.onClick(fileName=filename)
             if c2 is not None:
                 Editor.rCreature2.data = c2
-                Editor.rCreature2.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                Editor.rCreature2.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
                                 (c2.id, c2.fitness, int(c2.x), int(c2.y)))
+
+        elif Editor.aNCreature1.clickCheck(event.x, event.y):
+            Editor.aNCreature1.onClick()
+            Editor.aNCreature2.onRelease(creature = None)
+
+        elif Editor.aNCreature2.clickCheck(event.x, event.y):
+            Editor.aNCreature2.onClick()
+            Editor.aNCreature1.onRelease(creature = None)
+
+        elif Editor.nCreature1.clickCheck(event.x, event.y):
+            Editor.nCreature1.onClick()
+            Editor.nCreature1.data = None
+            Editor.nCreature1.text = "No data"
+
+        elif Editor.nCreature2.clickCheck(event.x, event.y):
+            Editor.nCreature2.onClick()
+            Editor.nCreature2.data = None
+            Editor.nCreature2.text = "No data"
 
     def mouseDragged(self, event):
         if self.eMode:
@@ -184,18 +237,28 @@ class Growth(App):
                     cret.update(dt)
                     if Editor.rCreature1.data is not None:
                         c1 = Editor.rCreature1.data
-                        Editor.rCreature1.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                        Editor.rCreature1.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
                                         (c1.id, c1.fitness, int(c1.x), int(c1.y)))
 
                     if Editor.rCreature2.data is not None:
                         c2 = Editor.rCreature2.data
-                        Editor.rCreature2.text = ("Id=%d\nFitness=%.2f\nPos=(%d, %d)" %\
+                        Editor.rCreature2.text = ("ID=%d\nFitness=%.2f\nPos=(%d, %d)" %\
                                 (c2.id, c2.fitness, int(c2.x), int(c2.y)))
+
+                    if Editor.nCreature1.data is not None:
+                        c1 = Editor.nCreature1.data
+                        Editor.nCreature1.text = "ID=%d\nFitness=%.2f" % (c1.id, c1.fitness)
+                        Editor.g1 = c1.genome
+
+                    if Editor.nCreature2.data is not None:
+                        c2 = Editor.nCreature2.data
+                        Editor.nCreature2.text = "ID=%d\nFitness=%.2f" % (c2.id, c2.fitness)
+                        Editor.g2 = c2.genome
 
                     foodAmnt = len(Tile.foodSet)
                     Tile.foodSet = Tile.foodSet - cret.eaten
                     if foodAmnt != len(Tile.foodSet):
-                        print("foods deleted")
+#                        print("foods deleted")
                         cret.eaten = set([])
 
                     counter = 1
@@ -251,7 +314,7 @@ class Growth(App):
 
                 #updating masterset
                 self.creatures = self.creatures.union(node.creatureSet)
-                print(len(self.creatures), len(node.creatureSet))
+#                print(len(self.creatures), len(node.creatureSet))
 
     def viewTables(self):
         #read saved avgFitness scores from file
