@@ -145,7 +145,6 @@ class Growth(App):
     def assistedEvolution(self):
             for node in self.spawnNodes:
 
-
                 #refilling to node capacity
                 if len(node.creatureSet) > 1:
                     #removing the unfit and updating masterset
@@ -162,18 +161,6 @@ class Growth(App):
                 #updating masterset
                 self.creatures = self.creatures.union(node.creatureSet)
                 print(len(self.creatures), len(node.creatureSet))
-
-    def editor(self):
-        #edit environment tiles(list insert/deletions)
-
-        #edit spawn nodes
-
-        #directly inject a creature into node
-
-        #create spawn nodes random or with imported parent(s)
-
-        #should be able to edit whenever
-        pass
 
     def viewTables(self):
         #read saved avgFitness scores from file
@@ -199,21 +186,21 @@ design custom creature genomes in friendly format
 """
 features to add to make this DONE:
 editor(see above)
-    -select different envionment tiles and paint them with mouse
-    -place spawn nodes anywhere
-    -import creatures from text file
+    -[COMPLETE]select different envionment tiles and paint them with mouse
+    -[COMPLETE]place spawn nodes anywhere
+    -[DEBUG+UI]import creatures from text file
     -design custom creature genomes in friendly format
 analytics
     -display graphs with average age, average fitness over time
     -display top performer
 export/import creatures
-    -send genomes to text file
-    -receive genomes from text file
+    -[DEBUG+UI]send genomes to text file
+    -[DEBUG+UI]receive genomes from text file
     -can import one to node for clones, two for parents
     -can import individual creature to node
 export/import maps
-    -save tile list to txt file
-    -read from txt file to list
+    -[DEBUG+UI]save tile list to txt file
+    -[DEBUG+UI]read from txt file to list
 """
 
 
