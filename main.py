@@ -17,6 +17,7 @@ from creature import *
 from genetics import *
 from editor import *
 from button import *
+from analysis import *
 import time
 
 class Growth(App):
@@ -25,9 +26,9 @@ class Growth(App):
         self.run = True
         self.eMode = False
         self.timerDelay = 0
-        self.scrollX = 0
-        self.scrollMargin = 50
+        self.globalAvgTracker = []
         self.tiles = []
+        self.genDeathCount = [0]
         self.foods = Tile.foodSet
         for x in range(0, WIDTH, TILESIZE):
             for y in range(0, HEIGHT, TILESIZE):
@@ -44,11 +45,17 @@ class Growth(App):
             node.spawnCreatures()
             self.creatures = self.creatures.union(node.creatureSet)
 
+        for c in self.creatures:
+            #assigning to random cret from set to start
+            self.globalTopCret = c
+            break
+
         for tile in self.tiles:
             if tile.isViable:
                 tile.spawnFood()
 
         self.theEditor = Editor()
+        self.theAnalyzer = Analysis()
 
         self.iCret1 = None
         self.iCret2 = None
@@ -67,7 +74,8 @@ class Growth(App):
         if self.eMode:
             Editor.selection(event.x, event.y)
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
-            Editor.nodeInsert(event.x, event.y, 10, self.spawnNodes)
+            Editor.nodeInsert(event.x, event.y, 10, len(self.globalAvgTracker),
+                                                                self.spawnNodes)
 
         if Editor.pCreature1.isClicked:
             c1 = Editor.pCreature1.onRelease(xC=event.x, yC=event.y, creatureSet=self.creatures)
@@ -99,6 +107,9 @@ class Growth(App):
             elif Editor.nCreature2.clickCheck(event.x, event.y):
                 c1 = Editor.nCreature2.onClick()
 
+            elif Analysis.topC.clickCheck(event.x, event.y):
+                c1 = Analysis.topC.onClick()
+
             if c1 is not None:
                 Editor.nCreature1.data = c1
                 Editor.g1 = c1.genome
@@ -116,6 +127,9 @@ class Growth(App):
 
             elif Editor.nCreature2.clickCheck(event.x, event.y):
                 c2 = Editor.nCreature2.onClick()
+
+            elif Analysis.topC.clickCheck(event.x, event.y):
+                c2 = Analysis.topC.onClick()
 
             if c2 is not None:
                 Editor.nCreature2.data = c2
@@ -186,19 +200,33 @@ class Growth(App):
         elif Editor.nCreature1.clickCheck(event.x, event.y):
             Editor.nCreature1.onClick()
             Editor.nCreature1.data = None
+            Editor.g1 = None
             Editor.nCreature1.text = "No data"
 
         elif Editor.nCreature2.clickCheck(event.x, event.y):
             Editor.nCreature2.onClick()
             Editor.nCreature2.data = None
+            Editor.g2 = None
             Editor.nCreature2.text = "No data"
+
+        elif Analysis.aGens.clickCheck(event.x, event.y):
+            Analysis.aGens.onClick(avgList = self.globalAvgTracker)
+
+        elif Analysis.aNGens.clickCheck(event.x, event.y):
+            nodeAvgListList = [node.avgTracker for node in self.spawnNodes]
+            Analysis.aNGens.onClick(nodeAvgListList=nodeAvgListList)
+
+        elif Analysis.mapComp.clickCheck(event.x, event.y):
+            Analysis.mapComp.onClick(mapList=self.tiles)
+
+        elif Analysis.deaths.clickCheck(event.x, event.y):
+            Analysis.deaths.onClick(deathList=self.genDeathCount)
 
     def mouseDragged(self, event):
         if self.eMode:
             Editor.tileInsert(event.x, event.y, Editor.selected, self.tiles)
 
     def mouseReleased(self, event):
-        self.noEdit = False
         for button in Button.buttonDict.values():
             if button.isClicked and not button.wait:
                 button.onRelease()
@@ -217,18 +245,13 @@ class Growth(App):
                 input(abs(self.start-self.end)/10)"""
 
             if self.secondHand > 1000: self.secondHand = 1
-
-            if self.secondHand == 5000:
-                for tile in self.tiles:
-                    if tile.isViable:
-                        tile.spawnFood()
-
-                for cret in self.creatures:
-                    cret.safe = False
     #                    print("food spawned")
-
             if self.secondHand % 10 == 0:
-                for cret in tuple(self.creatures):
+                crets = tuple(self.creatures)
+                topCret = crets[0]
+                for cret in crets:
+                    if cret.fitness > topCret.fitness: topCret = cret
+                    if cret.fitness > self.globalTopCret.fitness: self.globalTopCret = cret
                     cret.look(self.foods, 0)
                     cret.look(self.creatures, 1)
 
@@ -263,14 +286,28 @@ class Growth(App):
 
                     counter = 1
                     if cret.markForDelete:
-                        pass
-#                        print("deleted", (counter))
-#                        self.creatures.remove(cret)
+                        self.creatures.remove(cret)
+                        self.genDeathCount[-1] += 1
 
                 self.foods = Tile.foodSet
 
+                Analysis.topC.data = topCret
+                if Analysis.topC.data is not None:
+                    c1 = Analysis.topC.data
+                    Analysis.topC.text = "Current Top Creature\nID=%d\nFitness=%.2f" % (c1.id, c1.fitness)
+
+                Analysis.gTopC.data = self.globalTopCret
+                if Analysis.gTopC.data is not None:
+                    c2 = Analysis.gTopC.data
+                    Analysis.gTopC.text = "Alltime Top Creature\nID=%d\nFitness=%.2f" % (c2.id, c2.fitness)
+
+
+
             if self.secondHand % 500 == 0:
                 self.assistedEvolution()
+                self.foods = Tile.foodSet = set([])
+                for tile in self.tiles:
+                    if tile.isViable: tile.spawnFood()
 
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, ALLWIDTH, ALLHEIGHT, fill="grey")
@@ -289,6 +326,10 @@ class Growth(App):
             population[i].draw(canvas)
 
         self.theEditor.draw(canvas)
+        self.theAnalyzer.draw(canvas)
+
+        for button in Button.buttonDict.values():
+            button.draw(canvas)
 
         if self.eMode:
             for node in self.spawnNodes:
@@ -297,23 +338,34 @@ class Growth(App):
 #        print([cret.id for cret in self.creatures])
 
     def assistedEvolution(self):
-            for node in self.spawnNodes:
+        globalAvg = 0
+        for node in self.spawnNodes:
 
-                #refilling to node capacity
-                if len(node.creatureSet) > 1:
-                    #removing the unfit and updating masterset
-                    newCreatureSet = Genetics.luckSelector(node.creatureSet)
-                    deletedCrets = node.creatureSet - newCreatureSet
-                    node.creatureSet = newCreatureSet
-                    self.creatures = self.creatures - deletedCrets
-                    node.repopulate()
+            #refilling to node capacity
+            if len(node.creatureSet) > 1:
+                #removing the unfit and updating masterset
+                newCreatureSet, avgFitness = Genetics.luckSelector(node.creatureSet)
+                deletedCrets = node.creatureSet - newCreatureSet
+                node.creatureSet = newCreatureSet
+                self.creatures = self.creatures - deletedCrets
+                node.repopulate()
 
-                else:
-                    #just refilling for emptyish nodes
-                    node.spawnCreatures()
 
-                #updating masterset
-                self.creatures = self.creatures.union(node.creatureSet)
+            else:
+                #just refilling for emptyish nodes
+                node.spawnCreatures()
+                avgFitness = 0
+
+            node.avgTracker.append(avgFitness)
+            node.startGen = len(self.globalAvgTracker)
+            globalAvg += avgFitness
+
+            #updating masterset
+            self.creatures = self.creatures.union(node.creatureSet)
+
+        globalAvg /= len(self.spawnNodes)
+        self.globalAvgTracker.append(globalAvg)
+        self.genDeathCount.append(0)
 #                print(len(self.creatures), len(node.creatureSet))
 
     def viewTables(self):

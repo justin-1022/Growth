@@ -21,11 +21,11 @@ class Creature:
 
         #calculated from genome
         self.hpMax = None
-        self.speed = self.genome[GENE["agi"]]
-        self.energyReq = (3*self.genome[GENE["size"]])**3
+        self.speed = self.genome[GENE["agi"]] * 0.7
+        self.energyReq = (5*self.genome[GENE["size"]])**3
         self.diet = None#low vals = eats meat,high =vegan, middle = omni
         self.lifespan = None
-        self.moveCost = 3*self.genome[GENE["size"]]/2 * self.speed**2 * 0.01
+        self.moveCost = 3*self.genome[GENE["size"]]/2 * self.speed**2 * 0.05
 
         #status data
         self.age = 0
@@ -191,6 +191,7 @@ class Creature:
         self.velX = fX * self.speed * 1000
         self.velY = fY * self.speed * 1000
         self.angle = angle * math.pi
+        self.energy -= self.moveCost
 
     def eat(self, food):
 
@@ -215,7 +216,7 @@ class Creature:
 
     def update(self, dt):
 #        print(self.id, "updating")
-        self.energy -= self.energyReq * dt
+        self.energy -= self.energyReq/3.5 * dt
         self.age += dt
 
         self.x += float(self.velX * math.cos(self.angle*2*math.pi) * dt)
@@ -299,7 +300,7 @@ class Creature:
 
 
 class SpawnNode:
-    def __init__(self, x, y, count, genome1=None, genome2=None):
+    def __init__(self, x, y, count, startGen=0, genome1=None, genome2=None):
         #allows for spawning either random or controlled populations
         #1 genome = clones, 2=children of those two
         self.x = x
@@ -314,6 +315,10 @@ class SpawnNode:
         self.spawnRadius = 3
         self.color = "black"
         self.size = TILESIZE
+
+        self.startGen = startGen
+        self.avgTracker = [0 for n in range(self.startGen)]
+
 
     def spawnCreatures(self):
         #creating actual creatures to be added to game
@@ -372,6 +377,16 @@ class SpawnNode:
 
             child = parent1.mate(parent2)
 
+            #deciding where to put children
+            xMult = 1 if random.random() < 0.5 else -1
+            xAug = self.spawnRadius*random.random()*TILESIZE * xMult
+            x = self.x + xAug
+
+            yMult = 1 if random.random() < 0.5 else -1
+            yAug = self.spawnRadius*random.random()*TILESIZE * yMult
+            y = self.y + yAug
+
+            child.x, child.y = x, y
             self.creatureSet.add(child)
 #            print("added", counter)
 #        print("Creatures spawned:", len(self.creatureSet))

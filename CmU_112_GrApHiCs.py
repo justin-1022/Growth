@@ -1,9 +1,9 @@
-#all code from cs.cmu.edu/~112
-#modified to increase speed (removed bloat)
+#graphics framework from cs.cmu.edu/~112/notes/cmu_112_graphics.py
+#modified to conserve resources (removed logging and made some slight tweaks)
 
 
 # cmu_112_graphics.py
-# version 0.8.2(m)
+# version 0.8.2(modified)
 
 # Pre-release for CMU 15-112-f19
 

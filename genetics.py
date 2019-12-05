@@ -66,6 +66,7 @@ class Genetics:
             tempSum += creature.fitness
 
         avgFitness = tempSum / len(population)
+        #catching div/0
         if avgFitness == 0:
             avgFitness = 1000000
 #        print(avgFitness)#Need to send to file
@@ -85,7 +86,9 @@ class Genetics:
             if len(population) <= minimum:
                 break
 
-        return set(population)
+        #undoing the div/0 catch for recordkeeping
+        if avgFitness == 1000000: avgFitness = 0
+        return set(population), avgFitness
 
 
     @staticmethod

@@ -114,9 +114,6 @@ class Editor:
     def __init__(self):
         pass
 
-    def pickCreature(self):
-        pass
-
     def draw(self, canvas):
         #tile selection stuff
 
@@ -167,9 +164,6 @@ class Editor:
         Editor.nodeBox[0] + Editor.nodeBoxWidth,
         Editor.nodeBox[1] + Editor.nodeBoxHeight, fill="darkgrey")
 
-        for button in Button.buttonDict.values():
-            button.draw(canvas)
-
     @staticmethod
     def coordConvert(xC, yC):
         tileX = xC//TILESIZE
@@ -213,13 +207,14 @@ class Editor:
         elif tileType == "marsh":
             tileList[Editor.tileFind(x, y)] = Marsh(inSpot.x, inSpot.y)
 
-    def nodeInsert(xC, yC, count, nodeList):
+    def nodeInsert(xC, yC, count, startGen, nodeList):
         g1 = Editor.g1
         g2 = Editor.g2
-        print(g1 is None, g2 is None)
+#        print(g1 is None, g2 is None)
         if Editor.selected != "node": return None
         if xC > WIDTH or yC > HEIGHT: return None
-        nodeList.append(SpawnNode(xC, yC, count, g1, g2))
+        newNode = SpawnNode(xC, yC, count, startGen, g1, g2)
+        nodeList.append(newNode)
 
     @staticmethod
     def tileFind(x, y):

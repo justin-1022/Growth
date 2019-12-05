@@ -1,41 +1,52 @@
-# Growth
+Description:
+  Simulation of genetic knowledge (instinct) arising in a population.  Allows for full monitoring as well as full user control and creation capabilities for the environment.
 
-#Features to add:
-#GUI With creatures in existence
-Mode 1 - wildlands
-  The world is a flat map essentially and the creatures navigate to food
-  They will have simple life cycles - habitats etc
-  There will be predators that only eat other creatures, prey which eat plants
-  Decision making arise from biases
-    Bias to cluster or stay solitary
-    Bias to avoid predators when detected
-    Bias to certain food types (high vs low energy)
-    Memory? Knowledge of places with food
+How to Run:
+  run main.py
 
-  Creature genome Features
-    Biases above
-    speed
-    Weight
-    Lifespan
-    Reproduction habits (many vs single, who to reproduce with)
-    detection range
-      eyesight
-      hearing
-      smell
+Dependencies:
+  numpy
+  matplotlib
+  tkinter
+
+Shortcuts:
+  Edit mode = "e"
+  pause = "p"
+
+Some of the features may be a bit unintuitive so it may be helpful read this before running
+USER MANUAL:
+Tiles = basic environment unit on map, contains different properties for food, etc
+
+Creatures = the circles shown on screen.  They can either eat or move. All traits (speed, color, size, etc) are determined by the creature's genome
+
+SpawnNode, Node = spawns in creatures (only visible in edit mode)
+
+Food = speckles visible on screen, spawend by tiles, consumed by creatures for energy, 3 tiers of food available
+Edit mode:
+  edit mode can be toggled with "e"
+
+  while active, select tiles from the box on the far left to paint on the map with that tile using the map
+
+  the triangle in the bottom right is a spawn node. Clicking it allows spawn nodes to be placed using the map (not painted)
+
+Creature Loading/access:
+the large box to the left of the map import/export box allows for creature access
+They can be loaded from a file or selected by clicking "pick creature" then clicking a creature displayed on screen
+
+This creature will be highlighted with a yellow or pink dot accordingly for easy observation
+
+This creature can then be saved to a file or used for other functions
+
+Node Config:
+  the box directly to the bottom right of the tile box allows nodes to be configured before adding
+
+  creatures can be loaded by clicking "add" then clicking one of the large boxes in the creature Loading/access area or one of the boxes containing the top creatures
+
+  Loading just the top box makes a node of all clones
+  Loading both makes the node all children of the two
+  Loading neither makes a default (random) node
+
+  Clear selections by clicking the box with the creature (to the left of add)
 
 
-  problems to solve
-    How do you get animals to act like animals (live one place, get food in another)
-        Maybe have a bias against exposure that can go up or down, and have
-        designated spots with low exposure (in forest/caves?)
-
-    Getting predators to find prey
-      Have detection
-      Maybe a prey "trail" they can follow
-
-    Damage/attacking
-      Simple probability calculation?
-        number of attackers
-        damage potential
-        hp
-        speed
+More features to come
