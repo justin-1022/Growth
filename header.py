@@ -4,9 +4,6 @@ import random
 import paintcan
 import os
 
-random.seed(1)
-np.random.seed(1)
-
 WIDTH = 1200
 HEIGHT = 700
 ALLWIDTH = 1200

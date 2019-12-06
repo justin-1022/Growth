@@ -25,7 +25,7 @@ class Creature:
         self.energyReq = (5*self.genome[GENE["size"]])**3
         self.diet = None#low vals = eats meat,high =vegan, middle = omni
         self.lifespan = None
-        self.moveCost = 3*self.genome[GENE["size"]]/2 * self.speed**2 * 0.05
+        self.moveCost = 3*self.genome[GENE["size"]]/2 * self.speed**2 * 0.02
 
         #status data
         self.age = 0
@@ -216,7 +216,7 @@ class Creature:
 
     def update(self, dt):
 #        print(self.id, "updating")
-        self.energy -= self.energyReq/3.5 * dt
+        self.energy -= self.energyReq/3.3 * dt
         self.age += dt
 
         self.x += float(self.velX * math.cos(self.angle*2*math.pi) * dt)

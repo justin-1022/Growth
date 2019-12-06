@@ -23,7 +23,7 @@ Decisions = creatures make decisions using a modified FFNN that learns via genet
 
 SpawnNode, Node = spawns in creatures (only visible in edit mode)
 
-Food = speckles visible on screen, spawend by tiles, consumed by creatures for energy, 3 tiers of food available
+Food = speckles visible on screen, spawned by tiles, consumed by creatures for energy, 3 tiers of food available
 Edit mode:
   edit mode can be toggled with "e"
 

@@ -37,7 +37,7 @@ class Growth(App):
 #        self.tiles = tuple(self.tiles)#speeds up data access and reduces ram use
 
         self.secondHand = 0
-        self.spawnNodes = [SpawnNode(WIDTH/2, HEIGHT/2, 10)]
+        self.spawnNodes = []
         #same as tiles
         self.creatures = set([])#allows for quick management w/ set funcs
 
@@ -45,6 +45,7 @@ class Growth(App):
             node.spawnCreatures()
             self.creatures = self.creatures.union(node.creatureSet)
 
+        self.globalTopCret = None
         for c in self.creatures:
             #assigning to random cret from set to start
             self.globalTopCret = c
@@ -268,10 +269,14 @@ class Growth(App):
     #                    print("food spawned")
             if self.secondHand % 10 == 0:
                 crets = tuple(self.creatures)
-                topCret = crets[0]
+                topCret = crets[0] if len(crets) > 0 else None
                 for cret in crets:
-                    if cret.fitness > topCret.fitness: topCret = cret
-                    if cret.fitness > self.globalTopCret.fitness: self.globalTopCret = cret
+                    if cret is not None:
+                        if cret.fitness > topCret.fitness:
+                            topCret = cret
+                    if self.globalTopCret is not None:
+                        if cret.fitness > self.globalTopCret.fitness:
+                            self.globalTopCret = cret
                     cret.look(self.foods, 0)
                     cret.look(self.creatures, 1)
 
@@ -324,7 +329,6 @@ class Growth(App):
                     Analysis.gTopC.text = "Alltime Top Creature\nID=%d\nFitness=%.2f" % (c2.id, c2.fitness)
 
             if self.secondHand % 500 == 0:
-                #generation timer
                 self.assistedEvolution()
                 self.foods = Tile.foodSet = set([])
                 for tile in self.tiles:
